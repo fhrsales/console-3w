@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR" class="theme-dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console 3W · vídeo de demonstração</title>
+<link rel="stylesheet" href="portfolio/styles.css?v=0.1.0-4">
+<link rel="stylesheet" href="app.css?v=0.1.0-4">
+<style>
+  .demo-pagina { width: calc(100% - 32px); max-width: 1100px; margin: 0 auto; padding: 48px 0 64px; display: grid; gap: 20px; }
+  .demo-pagina video { width: 100%; border-radius: 12px; box-shadow: 0 0 0 1px var(--color-rule), var(--shadow-surface); background: #000; }
+  .demo-acoes { display: flex; gap: 12px; flex-wrap: wrap; }
+  .demo-acoes a { text-decoration: none; }
+</style>
+</head>
+<body>
+<header class="barra">
+  <div class="identidade">
+    <span class="marca-nome">Console 3W</span>
+    <span class="para-pb">Proposta para <img class="logo-pb" src="marca/petrobras.svg" alt="Petrobras" width="500" height="98"><span class="sep" aria-hidden="true"></span><span class="contexto">Radar de Soluções · protótipo com dados abertos</span></span>
+  </div>
+</header>
+<main class="demo-pagina">
+  <p class="rotulo">Vídeo de demonstração · 1min27s</p>
+  <h1 class="titulo-pagina">Do algoritmo de detecção à mesa do operador</h1>
+  <p class="descricao" style="font-size:18px;max-width:760px">Sala de alarmes inteligente para poços offshore, construída sobre a base aberta 3W da Petrobras e os dados abertos de produção por poço da ANP. O vídeo mostra a frota de norte a sul, a ficha de uma unidade, o replay de um caso real até o alerta, a explicação do alerta e a resposta do operador.</p>
+  <video controls preload="metadata" playsinline src="video/console-3w-demo.mp4"></video>
+  <div class="demo-acoes">
+    <a class="botao primario" href="./">Abrir o protótipo</a>
+    <a class="botao" href="video/console-3w-demo.mp4" download>Baixar o vídeo (MP4)</a>
+  </div>
+  <p class="fonte-tela" style="padding-left:0">Fontes: base 3W 2.0, Petrobras (CC-BY 4.0); produção por poço (dez/2023, último mês publicado) e tabela de poços, dados abertos da ANP; globo MapLibre GL com base Esri, HERE, Garmin, © OpenStreetMap; logotipo Petrobras via Wikimedia Commons. Fabio Sales Consultoria.</p>
+</main>
+</body>
+</html>

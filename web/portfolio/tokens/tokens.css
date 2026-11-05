@@ -1,0 +1,60 @@
+/* Portfolio tokens. Copied verbatim from src/app.css; do not edit here. */
+:root {
+	--grid: 9px;
+	--font-primary: 'Fira Sans', sans-serif;
+	--font-display: 'Newsreader', Georgia, serif;
+	--w-text: 580px;
+	--w-page: 1106px;
+	--vh: 1vh;
+	--header-h: 0px; /* the masthead is not fixed, so nothing needs to clear it */
+
+	/* Ink, paper and one vermilion accent */
+	--color-primary: #d9381e;
+	--color-on-primary: #ffffff;
+	--color-secondary: #121214;
+	--color-tertiary: #ffffff;
+	--color-danger: #c62f3b;
+	--color-success: #1f7a70;
+	--color-dark: #121214;
+	--color-light: #ffffff;
+	--color-rule: #d9d9de;
+	--body-bg: var(--color-light);
+
+	--glass-1: rgba(255, 255, 255, 0.6);
+	--glass-2: rgba(255, 255, 255, 0.45);
+	--glass-3: rgba(255, 255, 255, 0.52);
+	--glass-fade: rgba(255, 255, 255, 0);
+	--glass-solid-bg: linear-gradient(180deg, var(--glass-1) 0%, var(--glass-2) 55%, var(--glass-2) 100%);
+
+	/* Scroll background defaults */
+	--bg-first: var(--color-primary);
+	--bg-second: var(--color-secondary);
+
+	--shadow-2: 0 1px 6px rgba(0, 0, 0, 0.2);
+
+	--multiply: multiply;
+}
+.theme-dark {
+	--color-primary: #ff6a4d;
+	--color-on-primary: #111114;
+	--color-secondary: #f1f1f4;
+	--color-tertiary: #1c1c20;
+	--color-dark: #f1f1f4;
+	--color-light: #111114;
+	--color-rule: #3a3a40;
+	--body-bg: var(--color-light);
+
+	--glass-1: rgba(18, 20, 30, 0.72);
+	--glass-2: rgba(18, 20, 30, 0.55);
+	--glass-3: rgba(18, 20, 30, 0.62);
+	--glass-fade: rgba(18, 20, 30, 0);
+	--glass-solid-bg: linear-gradient(180deg, var(--glass-1) 0%, var(--glass-2) 55%, var(--glass-2) 100%);
+}
+/* Paper resting on a surface: translucent black only, so it holds on any background. */
+:root {
+	--shadow-surface: 0 1px 1px rgba(0, 0, 0, 0.12), 0 8px 14px -6px rgba(0, 0, 0, 0.3), 0 24px 34px -18px rgba(0, 0, 0, 0.38);
+}
+.theme-dark,
+.secao-escura {
+	--shadow-surface: 0 1px 1px rgba(0, 0, 0, 0.3), 0 8px 14px -6px rgba(0, 0, 0, 0.55), 0 24px 34px -18px rgba(0, 0, 0, 0.7);
+}

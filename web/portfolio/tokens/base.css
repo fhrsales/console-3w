@@ -1,0 +1,9 @@
+/* The page ground, as src/app.css sets it. */
+body {
+	background-color: var(--body-bg, var(--color-light));
+	color: var(--color-dark);
+	font-family: var(--font-primary);
+}
+strong {
+	font-weight: 600;
+}

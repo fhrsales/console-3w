@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR" class="theme-dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console 3W</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css">
+<link rel="stylesheet" href="portfolio/styles.css?v=0.1.0-4">
+<link rel="stylesheet" href="app.css?v=0.1.0-4">
+</head>
+<body>
+<header class="barra">
+  <div class="identidade">
+    <span class="marca-nome">Console 3W</span>
+    <span class="para-pb">Proposta para <img class="logo-pb" src="marca/petrobras.svg" alt="Petrobras" width="500" height="98"><span class="sep" aria-hidden="true"></span><span class="contexto">Radar de Soluções · protótipo com dados abertos</span></span>
+  </div>
+  <nav class="menu" aria-label="Telas" id="abas">
+    <span class="menu-traco" aria-hidden="true"></span>
+    <a href="#frota" data-aba="frota">Frota</a>
+    <a href="#alarmes" data-aba="alarmes">Sala de alarmes</a>
+  </nav>
+</header>
+
+<div class="pagina">
+  <div class="cabecalho-pagina">
+    <h1 class="titulo-pagina" id="titulo-tela">Frota offshore</h1>
+    <p class="descricao" id="lead-tela"></p>
+  </div>
+
+  <main id="tela-frota" class="vista" hidden>
+    <div class="historia" id="historia">
+      <div class="palco">
+        <div id="mapa" class="mapa" role="region" aria-label="Globo com as instalações offshore; clique ou toque numa torre para ver a ficha"></div>
+        <aside class="ficha" id="ficha" aria-live="polite" hidden></aside>
+      </div>
+      <div class="painel-passos">
+        <div class="contador"><span id="contador-n" aria-live="polite">1 / 1</span><span class="contador-barra" aria-hidden="true"><i id="contador-i"></i></span>
+          <span class="setas" role="group" aria-label="Capítulos"><button type="button" class="seta" id="cap-ant" aria-label="Capítulo anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button><button type="button" class="seta" id="cap-prox" aria-label="Próximo capítulo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></span></div>
+        <div class="passos" id="passos"></div>
+        <p class="fonte-tela">Fonte: ANP, dados abertos — produção por poço (dez/2023, último mês publicado) e tabela de poços (BDEP). Replay: base 3W, Petrobras (CC-BY 4.0).</p>
+      </div>
+    </div>
+  </main>
+
+  <main id="tela-alarmes" class="vista alarmes-grade" hidden>
+    <ol class="para-que" aria-label="Para que serve a sala de alarmes">
+      <li><span class="n">1</span><div><b>Detecta</b><p>Avisa quando um poço sai do próprio comportamento normal, antes que vire perda de produção.</p></div></li>
+      <li><span class="n">2</span><div><b>Explica</b><p>Mostra quais sinais mudaram e quanto, o que pode ser e casos parecidos no histórico.</p></div></li>
+      <li><span class="n">3</span><div><b>Aprende</b><p>O operador confirma ou marca alarme falso; a resposta vira rótulo para o próximo treino.</p></div></li>
+    </ol>
+    <section class="lista" aria-labelledby="t-lista">
+      <header class="secao-cabeca">
+        <h2 class="titulo-secao" id="t-lista">Poços em replay</h2>
+        <label class="interruptor"><input type="checkbox" id="mostrar-gabarito"><span class="trilho" aria-hidden="true"></span> Rótulo da base</label>
+      </header>
+      <ol id="instancias"></ol>
+    </section>
+
+    <div class="coluna-painel">
+      <section class="painel" aria-live="polite">
+        <div class="cabeca">
+          <div>
+            <p class="rotulo" id="p-rotulo">Selecione um poço</p>
+            <h2 class="titulo-poco" id="p-titulo">—</h2>
+          </div>
+          <div class="controles">
+            <button id="play" class="botao primario" type="button" disabled>Reproduzir</button>
+            <div class="velocidade" role="group" aria-label="Velocidade"><span class="velocidade-traco" aria-hidden="true"></span>
+              <button type="button" data-vel="30">30×</button>
+              <button type="button" data-vel="120" aria-pressed="true">120×</button>
+              <button type="button" data-vel="600">600×</button>
+            </div>
+            <span id="relogio" class="relogio">--:--:--</span>
+          </div>
+        </div>
+        <div class="progresso"><input id="cursor" type="range" min="0" max="0" value="0" aria-label="Posição do replay" disabled><span id="restante" class="meta"></span></div>
+        <div id="graficos" class="graficos"></div>
+      </section>
+
+      <div id="alerta-wrap" data-open="false"><section class="alerta" id="alerta"></section></div>
+    </div>
+  </main>
+</div>
+
+<footer class="rodape">
+  <p class="placar" id="placar">Nenhum alerta avaliado ainda</p>
+  <p class="descricao">Dados: 3W Dataset 2.0, Petrobras (CC-BY 4.0); produção por poço e tabela de poços, dados abertos da ANP; logotipo Petrobras via Wikimedia Commons; globo MapLibre GL com base Esri, HERE, Garmin, © OpenStreetMap. Detector e sugestões treinados numa amostra pequena; o caso em replay nunca entra no treino.</p>
+</footer>
+<script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
+<script src="app.js?v=0.1.0-4"></script>
+<script src="frota.js?v=0.1.0-4"></script>
+</body>
+</html>

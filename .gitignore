@@ -1,0 +1,10 @@
+.venv/
+data/raw/
+__pycache__/
+*.db
+.DS_Store
+feedback.jsonl
+data/raw-anp/
+.claude/
+# rascunho do formulário (dados da empresa): fica só local
+docs/radar-formulario.md

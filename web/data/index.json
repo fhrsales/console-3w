@@ -1,0 +1,296 @@
+{
+ "eventos": {
+  "0": "Operação normal",
+  "1": "Aumento abrupto de BSW",
+  "2": "Fechamento espúrio da DHSV",
+  "3": "Golfada severa",
+  "4": "Instabilidade de fluxo",
+  "5": "Perda rápida de produtividade",
+  "6": "Restrição rápida no choke",
+  "7": "Incrustação no choke",
+  "8": "Hidrato na linha de produção",
+  "9": "Hidrato na linha de serviço"
+ },
+ "instancias": [
+  {
+   "id": "WELL-00002_20131211220015",
+   "poco": "WELL-00002",
+   "inicio": "2013-12-11 22:00",
+   "duracao_min": 180,
+   "evento_rotulado": "Operação normal",
+   "codigo_rotulado": 0,
+   "alertas": 1,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00002_20131212000148",
+   "poco": "WELL-00002",
+   "inicio": "2013-12-12 00:01",
+   "duracao_min": 178,
+   "evento_rotulado": "Operação normal",
+   "codigo_rotulado": 0,
+   "alertas": 2,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00002_20131212020000",
+   "poco": "WELL-00002",
+   "inicio": "2013-12-12 02:00",
+   "duracao_min": 179,
+   "evento_rotulado": "Operação normal",
+   "codigo_rotulado": 0,
+   "alertas": 0,
+   "primeiro_alerta": null
+  },
+  {
+   "id": "WELL-00002_20131214150127",
+   "poco": "WELL-00002",
+   "inicio": "2013-12-14 15:01",
+   "duracao_min": 179,
+   "evento_rotulado": "Operação normal",
+   "codigo_rotulado": 0,
+   "alertas": 0,
+   "primeiro_alerta": null
+  },
+  {
+   "id": "WELL-00002_20131214170036",
+   "poco": "WELL-00002",
+   "inicio": "2013-12-14 17:00",
+   "duracao_min": 180,
+   "evento_rotulado": "Operação normal",
+   "codigo_rotulado": 0,
+   "alertas": 3,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00002_20131214190030",
+   "poco": "WELL-00002",
+   "inicio": "2013-12-14 19:00",
+   "duracao_min": 180,
+   "evento_rotulado": "Operação normal",
+   "codigo_rotulado": 0,
+   "alertas": 1,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00011_20140530083203",
+   "poco": "WELL-00011",
+   "inicio": "2014-05-30 08:32",
+   "duracao_min": 121,
+   "evento_rotulado": "Fechamento espúrio da DHSV",
+   "codigo_rotulado": 2,
+   "alertas": 2,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00011_20140726165720",
+   "poco": "WELL-00011",
+   "inicio": "2014-07-26 16:57",
+   "duracao_min": 120,
+   "evento_rotulado": "Fechamento espúrio da DHSV",
+   "codigo_rotulado": 2,
+   "alertas": 1,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00011_20140929153332",
+   "poco": "WELL-00011",
+   "inicio": "2014-09-29 15:33",
+   "duracao_min": 132,
+   "evento_rotulado": "Fechamento espúrio da DHSV",
+   "codigo_rotulado": 2,
+   "alertas": 1,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00011_20141006150121",
+   "poco": "WELL-00011",
+   "inicio": "2014-10-06 15:01",
+   "duracao_min": 134,
+   "evento_rotulado": "Fechamento espúrio da DHSV",
+   "codigo_rotulado": 2,
+   "alertas": 2,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00001_20170320120025",
+   "poco": "WELL-00001",
+   "inicio": "2017-03-20 12:00",
+   "duracao_min": 360,
+   "evento_rotulado": "Golfada severa",
+   "codigo_rotulado": 3,
+   "alertas": 1,
+   "primeiro_alerta": "Incrustação no choke"
+  },
+  {
+   "id": "WELL-00014_20170917140000",
+   "poco": "WELL-00014",
+   "inicio": "2017-09-17 14:00",
+   "duracao_min": 356,
+   "evento_rotulado": "Golfada severa",
+   "codigo_rotulado": 3,
+   "alertas": 1,
+   "primeiro_alerta": "Golfada severa"
+  },
+  {
+   "id": "WELL-00014_20170919200016",
+   "poco": "WELL-00014",
+   "inicio": "2017-09-19 20:00",
+   "duracao_min": 300,
+   "evento_rotulado": "Golfada severa",
+   "codigo_rotulado": 3,
+   "alertas": 1,
+   "primeiro_alerta": "Golfada severa"
+  },
+  {
+   "id": "WELL-00002_20131215030036",
+   "poco": "WELL-00002",
+   "inicio": "2013-12-15 03:00",
+   "duracao_min": 180,
+   "evento_rotulado": "Instabilidade de fluxo",
+   "codigo_rotulado": 4,
+   "alertas": 1,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00002_20131215050030",
+   "poco": "WELL-00002",
+   "inicio": "2013-12-15 05:00",
+   "duracao_min": 180,
+   "evento_rotulado": "Instabilidade de fluxo",
+   "codigo_rotulado": 4,
+   "alertas": 1,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00002_20140120070122",
+   "poco": "WELL-00002",
+   "inicio": "2014-01-20 07:01",
+   "duracao_min": 179,
+   "evento_rotulado": "Instabilidade de fluxo",
+   "codigo_rotulado": 4,
+   "alertas": 0,
+   "primeiro_alerta": null
+  },
+  {
+   "id": "WELL-00002_20140121070214",
+   "poco": "WELL-00002",
+   "inicio": "2014-01-21 07:02",
+   "duracao_min": 178,
+   "evento_rotulado": "Instabilidade de fluxo",
+   "codigo_rotulado": 4,
+   "alertas": 2,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00016_20180405005319",
+   "poco": "WELL-00016",
+   "inicio": "2018-04-05 00:53",
+   "duracao_min": 126,
+   "evento_rotulado": "Perda rápida de produtividade",
+   "codigo_rotulado": 5,
+   "alertas": 1,
+   "primeiro_alerta": "Golfada severa"
+  },
+  {
+   "id": "WELL-00016_20180426131710",
+   "poco": "WELL-00016",
+   "inicio": "2018-04-26 13:17",
+   "duracao_min": 87,
+   "evento_rotulado": "Perda rápida de produtividade",
+   "codigo_rotulado": 5,
+   "alertas": 1,
+   "primeiro_alerta": "Golfada severa"
+  },
+  {
+   "id": "WELL-00016_20180426135108",
+   "poco": "WELL-00016",
+   "inicio": "2018-04-26 13:51",
+   "duracao_min": 114,
+   "evento_rotulado": "Perda rápida de produtividade",
+   "codigo_rotulado": 5,
+   "alertas": 1,
+   "primeiro_alerta": "Golfada severa"
+  },
+  {
+   "id": "WELL-00004_20171031171509",
+   "poco": "WELL-00004",
+   "inicio": "2017-10-31 17:15",
+   "duracao_min": 120,
+   "evento_rotulado": "Restrição rápida no choke",
+   "codigo_rotulado": 6,
+   "alertas": 1,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00004_20171031181500",
+   "poco": "WELL-00004",
+   "inicio": "2017-10-31 18:15",
+   "duracao_min": 94,
+   "evento_rotulado": "Restrição rápida no choke",
+   "codigo_rotulado": 6,
+   "alertas": 1,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00004_20171031184839",
+   "poco": "WELL-00004",
+   "inicio": "2017-10-31 18:48",
+   "duracao_min": 100,
+   "evento_rotulado": "Restrição rápida no choke",
+   "codigo_rotulado": 6,
+   "alertas": 1,
+   "primeiro_alerta": "Restrição rápida no choke"
+  },
+  {
+   "id": "WELL-00021_20180611011218",
+   "poco": "WELL-00021",
+   "inicio": "2018-06-11 01:12",
+   "duracao_min": 776,
+   "evento_rotulado": "Incrustação no choke",
+   "codigo_rotulado": 7,
+   "alertas": 1,
+   "primeiro_alerta": "Golfada severa"
+  },
+  {
+   "id": "WELL-00024_20160920153331",
+   "poco": "WELL-00024",
+   "inicio": "2016-09-20 15:33",
+   "duracao_min": 417,
+   "evento_rotulado": "Incrustação no choke",
+   "codigo_rotulado": 7,
+   "alertas": 1,
+   "primeiro_alerta": "Golfada severa"
+  },
+  {
+   "id": "WELL-00036_20190925100042",
+   "poco": "WELL-00036",
+   "inicio": "2019-09-25 10:00",
+   "duracao_min": 179,
+   "evento_rotulado": "Hidrato na linha de serviço",
+   "codigo_rotulado": 9,
+   "alertas": 1,
+   "primeiro_alerta": "Incrustação no choke"
+  },
+  {
+   "id": "WELL-00036_20190930013035",
+   "poco": "WELL-00036",
+   "inicio": "2019-09-30 01:30",
+   "duracao_min": 119,
+   "evento_rotulado": "Hidrato na linha de serviço",
+   "codigo_rotulado": 9,
+   "alertas": 1,
+   "primeiro_alerta": "Instabilidade de fluxo"
+  },
+  {
+   "id": "WELL-00036_20190930083101",
+   "poco": "WELL-00036",
+   "inicio": "2019-09-30 08:31",
+   "duracao_min": 178,
+   "evento_rotulado": "Hidrato na linha de serviço",
+   "codigo_rotulado": 9,
+   "alertas": 1,
+   "primeiro_alerta": "Incrustação no choke"
+  }
+ ]
+}
