@@ -193,7 +193,8 @@ function mostrarAlerta(a) {
       <button class="botao primario" id="b-conf" type="button">Confirmo</button>
       <select id="s-ev" aria-label="Evento confirmado">${opcoes}</select>
       <button class="botao" id="b-falso" type="button">Alarme falso</button>
-      <input id="nota" placeholder="Observação do operador (opcional)" maxlength="500">`}</div>`;
+      <input id="nota" placeholder="Observação do operador (opcional)" maxlength="500">
+      <p class="simulacao">Simulação com caso histórico: em operação, esta resposta viraria rótulo para o próximo treino do detector.</p>`}</div>`;
   // O alerta entra assentando de baixo para cima, bloco a bloco.
   [...el.children].forEach((c, i) => c.style.setProperty('--i', i));
   $('#alerta-wrap').dataset.open = 'true';

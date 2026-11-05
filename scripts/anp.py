@@ -25,6 +25,8 @@ import pandas as pd
 
 M3_BBL = 6.2898  # barris por metro cúbico
 LIMIAR = 0.7     # poço "abaixo do normal" quando produz menos de 70% da própria média
+MESES_REF = 8    # meses anteriores que formam o "normal"
+EXTRA = Path(__file__).with_name("coordenadas-extra.json")
 
 
 def chave(s):
@@ -57,8 +59,11 @@ def tipo_curto(c):
 
 def main(raw, out):
     raw, out = Path(raw), Path(out)
-    arq = sorted(raw.glob("producao-mar-*.csv"))[-1]
-    p = ler(arq)
+    # Junta todos os anos baixados (na virada do ano o arquivo novo tem só um mês).
+    arqs = sorted(raw.glob("producao-mar-*.csv"))
+    if not arqs:
+        raise SystemExit("nenhum producao-mar-AAAA.csv em " + str(raw))
+    p = pd.concat([ler(a) for a in arqs], ignore_index=True)
     p["mes"] = pd.PeriodIndex(pd.to_datetime(p["Mês/Ano"], format="%m/%Y"), freq="M")
     dias = p["mes"].dt.days_in_month
     p["oleo"] = (num(p["Produção de Óleo (m³)"]) + num(p["Produção de Condensado (m³)"])) * M3_BBL / dias
@@ -69,7 +74,8 @@ def main(raw, out):
 
     ultimo = p["mes"].max()
     atual = p[p["mes"] == ultimo]
-    antes = p[p["mes"] < ultimo]
+    # Normal móvel: os MESES_REF meses anteriores ao último (atravessa a virada do ano).
+    antes = p[(p["mes"] < ultimo) & (p["mes"] >= ultimo - MESES_REF)]
 
     # Normal de cada poço: média diária nos meses anteriores em que ele aparece.
     normal_poco = antes.groupby("Poço")["boe"].mean()
@@ -93,12 +99,16 @@ def main(raw, out):
             pocos_geo[d] = pd.to_numeric(pocos_geo[c].str.replace(",", ".", regex=False), errors="coerce")
         pocos_geo = pocos_geo.dropna(subset=["lat", "lon"]).drop_duplicates("POCO").set_index("POCO")[["lat", "lon"]]
 
+    # Posições versionadas no repositório para instalações fora da lista (a automação não baixa a tabela de poços).
+    extras = json.loads(EXTRA.read_text())["instalacoes"] if EXTRA.exists() else {}
     frota = []
     for inst, g in atual.groupby("Instalação"):
         k = chave(inst)
         info = lista.loc[k] if k in lista.index else None
         if info is not None:
             lat, lon = num1(info["LATITUDE"]), num1(info["LONGITUDE"])
+        elif inst.strip() in extras:
+            lat, lon = extras[inst.strip()]
         elif pocos_geo is not None:
             geo = pocos_geo.reindex(g["Poço"].unique()).dropna()
             if geo.empty:

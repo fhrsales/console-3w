@@ -106,6 +106,11 @@
     const [frota, idx] = await Promise.all([fetch('data/frota.json').then((r) => r.json()), fetch('data/index.json').then((r) => r.json())]);
     st.frota = frota;
     st.ref = frota.referencia;
+    // Textos de período vêm dos dados (o site é atualizado toda semana).
+    const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const [anoP, mesP] = frota.periodo.split('-');
+    document.querySelectorAll('[data-periodo]').forEach((el) => { el.textContent = `${MESES[+mesP - 1]}/${anoP}`; });
+    document.querySelectorAll('[data-referencia]').forEach((el) => { el.textContent = frota.referencia || ''; });
     associarDemo(frota.instalacoes, idx.instancias);
     capitulos(frota);
     globo(frota);
@@ -134,7 +139,7 @@
   function pontos(total, parados) {
     const max = 60, n = Math.min(total, max);
     const vermelhos = Math.round((parados / Math.max(1, total)) * n);
-    const dP = `${n0(parados)} ${parados === 1 ? 'poço abaixo' : 'poços abaixo'} do normal" data-dica-sub="${pct(parados / Math.max(1, total))} dos poços · menos de 70% da própria média do ano`;
+    const dP = `${n0(parados)} ${parados === 1 ? 'poço abaixo' : 'poços abaixo'} do normal" data-dica-sub="${pct(parados / Math.max(1, total))} dos poços · menos de 70% da própria média dos 8 meses anteriores`;
     const dO = `${n0(total - parados)} ${total - parados === 1 ? 'poço' : 'poços'} no normal" data-dica-sub="${pct((total - parados) / Math.max(1, total))} dos poços · 70% da própria média ou mais`;
     return `<div class="pontos" role="img" aria-label="${parados} de ${total} poços abaixo do normal">${Array.from({ length: n }, (_, k) => `<i class="${k < vermelhos ? 'parado' : 'ok'}" data-dica="${k < vermelhos ? dP : dO}"></i>`).join('')}${total > max ? `<span>cada ponto ≈ ${n1(total / max)} poços</span>` : ''}</div>`;
   }
@@ -156,7 +161,7 @@
       ['Instalações no mar', it.length, '', `Produção por poço da ANP, ${mes}/${ano}`, ''],
       ['Petróleo por dia', oleo / 1000, 'mil bbl', 'Soma das instalações marítimas', empilhada([{ v: santos, cls: 'forte', rot: 'Santos' }, { v: oleo - santos, cls: 'fraco', rot: 'demais bacias' }])],
       ['Água produzida', agua / 1000, 'mil bbl/d', 'Sai junto com o petróleo', empilhada([{ v: oleo, cls: 'forte', rot: 'petróleo' }, { v: agua, cls: 'agua', rot: 'água' }])],
-      ['Poços abaixo do normal', parados, `de ${n0(pocos)}`, 'Menos de 70% da própria média do ano', pontos(pocos, parados)],
+      ['Poços abaixo do normal', parados, `de ${n0(pocos)}`, 'Menos de 70% da própria média dos 8 meses anteriores', pontos(pocos, parados)],
     ].map(([r, v, u, d, g]) => `<div class="kpi"><p class="rotulo-menor">${r}</p><p class="kpi-valor"><span data-alvo="${v}">${n0(v)}</span>${u ? `<small>${u}</small>` : ''}</p><p class="descricao">${d}</p>${g}</div>`).join('')}</div>`;
   }
 
@@ -208,7 +213,7 @@
           <div class="legenda det"><span><i class="leg-ponto"></i> instalação</span><span><i class="leg-ponto demo"></i> com replay de demonstração</span><span><i class="leg-coluna"></i> altura da coluna = petróleo por dia</span></div>
           <p class="rotulo-menor det">Mais abaixo do normal · unidades acima de 2 mil bbl/d</p>
           <ol class="barras-inst ranking-fim det">${ranking(f).map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span>${i.instalacao}</span><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.round(Math.min(1, i.disponibilidade) * 100)}%"></i></span><b>${pct(i.disponibilidade)}</b></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${i.instalacao}" data-dica-sub="${pct(i.disponibilidade)} do normal · ${i.pocos_com_parada} de ${i.pocos} poços abaixo do normal"`)).join('')}</ol>
-          <p class="descricao det">Barra = produção do mês em relação à média do ano (cheia = 100%).</p>${EXPANDIR}</section>`;
+          <p class="descricao det">Barra = produção do mês em relação à média dos 8 meses anteriores (cheia = 100%).</p>${EXPANDIR}</section>`;
       }
       const mostra = c.lista.length > 8 ? [...c.lista].sort((a, b) => b.oleo_bbl_d - a.oleo_bbl_d).slice(0, 8).sort((a, b) => b.lat - a.lat) : c.lista;
       const max = Math.max(...mostra.map((i) => i.oleo_bbl_d));
@@ -222,7 +227,7 @@
         <p class="rotulo-menor det">Petróleo por instalação, mil bbl/d${c.lista.length > mostra.length ? ` · as ${mostra.length} maiores de ${c.lista.length}` : ''} · <span class="leg-critico">vermelho</span> = abaixo de 50% do normal</p>
         <ol class="barras-inst det">${mostra.map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span>${i.instalacao}</span><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.max(2, (i.oleo_bbl_d / max) * 100)}%"></i></span><b>${n1(i.oleo_bbl_d / 1000)}</b></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${i.instalacao}" data-dica-sub="${n0(i.oleo_bbl_d)} bbl/d · ${pct(i.disponibilidade)} do normal · ${i.pocos_com_parada} de ${i.pocos} poços abaixo do normal"`)).join('')}</ol>
         <p class="rotulo-menor det">Poços abaixo do normal · ${parados} de ${pocos}</p><div class="det">${pontos(pocos, parados)}</div>
-        <p class="descricao">Mais abaixo do normal: <b>${pior.instalacao}</b>, ${pct(pior.disponibilidade)} da média do ano.</p>${EXPANDIR}</section>`;
+        <p class="descricao">Mais abaixo do normal: <b>${pior.instalacao}</b>, ${pct(pior.disponibilidade)} da média dos 8 meses anteriores.</p>${EXPANDIR}</section>`;
     }).join('');
     document.querySelectorAll('.barras-inst button').forEach((b) => b.addEventListener('click', () => selecionar(b.dataset.nome, { voar: true })));
     // Desktop: os passos rolam dentro do painel e o capítulo do meio fica ativo.

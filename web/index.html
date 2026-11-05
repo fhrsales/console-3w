@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Console 3W</title>
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css">
-<link rel="stylesheet" href="portfolio/styles.css?v=0.2.0-2">
-<link rel="stylesheet" href="app.css?v=0.2.0-2">
+<link rel="stylesheet" href="portfolio/styles.css?v=0.2.2">
+<link rel="stylesheet" href="app.css?v=0.2.2">
 </head>
 <body>
 <header class="barra">
   <div class="identidade">
     <span class="marca-nome">Console 3W</span>
-    <span class="para-pb">Proposta para <img class="logo-pb" src="marca/petrobras.svg" alt="Petrobras" width="500" height="98"><span class="sep" aria-hidden="true"></span><span class="contexto">Radar de Soluções · protótipo com dados abertos</span></span>
+    <span class="para-pb">Proposta para <img class="logo-pb" src="marca/petrobras.svg" alt="Petrobras" width="500" height="98"><span class="sep" aria-hidden="true"></span><span class="contexto">Radar de Soluções · prova de conceito com dados abertos</span></span>
   </div>
   <nav class="menu" aria-label="Telas" id="abas">
     <span class="menu-traco" aria-hidden="true"></span>
@@ -37,12 +37,20 @@
         <div class="contador"><span id="contador-n" aria-live="polite">1 / 1</span><span class="contador-barra" aria-hidden="true"><i id="contador-i"></i></span><span class="pontos-passo" id="pontos-passo" role="group" aria-label="Capítulos"></span>
           <span class="setas" role="group" aria-label="Capítulos"><button type="button" class="seta" id="cap-ant" aria-label="Capítulo anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button><button type="button" class="seta" id="cap-prox" aria-label="Próximo capítulo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></span></div>
         <div class="passos" id="passos"></div>
-        <p class="fonte-tela">Fonte: ANP, dados abertos — produção por poço no mar (set/2026, último mês publicado; normal = média de jan a ago/2026) e plataformas em operação. Replay: base 3W, Petrobras (CC-BY 4.0).</p>
+        <p class="fonte-tela">Fonte: ANP, dados abertos — produção por poço no mar (<span data-periodo>set/2026</span>, último mês publicado; normal = média de <span data-referencia>01/2026 a 08/2026</span>) e plataformas em operação. Atualizado automaticamente toda semana. Replay: base 3W, Petrobras (CC-BY 4.0).</p>
       </div>
     </div>
   </main>
 
   <main id="tela-alarmes" class="vista alarmes-grade" hidden>
+    <aside class="aviso-poc" aria-label="Sobre os dados da sala de alarmes">
+      <p class="rotulo">Prova de conceito</p>
+      <div>
+        <h2>Casos históricos, fluxo de verdade</h2>
+        <p>Os sinais dos sensores de poço em tempo real não são públicos: ficam nos sistemas da Petrobras. Por isso esta sala roda sobre <b>casos reais e históricos</b> da base aberta 3W (2013 a 2023), em replay acelerado, para mostrar o fluxo completo: detectar, explicar e registrar a resposta do operador. Numa implantação, o mesmo console ligaria aos dados em tempo real da sala de controle, e cada resposta do operador treinaria o detector com os eventos daquela unidade.</p>
+        <p class="descricao">A frota, ao contrário, usa dados recentes: produção por poço da ANP de <span data-periodo>set/2026</span>, atualizada automaticamente.</p>
+      </div>
+    </aside>
     <ol class="para-que" aria-label="Para que serve a sala de alarmes">
       <li><span class="n">1</span><div><b>Detecta</b><p>Avisa quando um poço sai do próprio comportamento normal, antes que vire perda de produção.</p></div></li>
       <li><span class="n">2</span><div><b>Explica</b><p>Mostra quais sinais mudaram e quanto, o que pode ser e casos parecidos no histórico.</p></div></li>
@@ -84,10 +92,10 @@
 
 <footer class="rodape">
   <p class="placar" id="placar">Nenhum alerta avaliado ainda</p>
-  <p class="descricao">Dados: 3W Dataset 2.0, Petrobras (CC-BY 4.0); produção por poço no mar (set/2026) e plataformas em operação, dados abertos da ANP; logotipo Petrobras via Wikimedia Commons; globo MapLibre GL com base Esri, HERE, Garmin, © OpenStreetMap. Detector e sugestões treinados numa amostra pequena; o caso em replay nunca entra no treino.</p>
+  <p class="descricao">Dados: 3W Dataset 2.0, Petrobras (CC-BY 4.0); produção por poço no mar (<span data-periodo>set/2026</span>) e plataformas em operação, dados abertos da ANP; logotipo Petrobras via Wikimedia Commons; globo MapLibre GL com base Esri, HERE, Garmin, © OpenStreetMap. Detector e sugestões treinados numa amostra pequena; o caso em replay nunca entra no treino.</p>
 </footer>
 <script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
-<script src="app.js?v=0.2.0-2"></script>
-<script src="frota.js?v=0.2.0-2"></script>
+<script src="app.js?v=0.2.2"></script>
+<script src="frota.js?v=0.2.2"></script>
 </body>
 </html>

@@ -1,0 +1,13 @@
+{
+ "_nota": "Instalações marítimas que não estão na lista de plataformas em operação da ANP: posição = mediana das coordenadas dos seus poços (tabela de poços do BDEP).",
+ "instalacoes": {
+  "Ponto de Coleta de Tartaruga": [
+   -10.6689,
+   -36.7713
+  ],
+  "Estação de Paru": [
+   -10.3032,
+   -36.0924
+  ]
+ }
+}

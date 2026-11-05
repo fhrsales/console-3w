@@ -1,0 +1,69 @@
+name: Atualizar dados da ANP
+
+# Toda segunda-feira baixa a produção por poço no mar (ano atual e anterior) e a lista de plataformas
+# em operação, recalcula web/data/frota.json e, se mudou, faz o commit e republica o site.
+on:
+  schedule:
+    - cron: "0 9 * * 1"   # segunda, 06:00 em Brasília
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: atualizar-anp
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install --quiet pandas
+
+      - name: Baixar dados abertos da ANP
+        env:
+          BASE: https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/arquivos-fase-de-desenvolvimento-e-producao
+          UA: "Mozilla/5.0 (console-3w; atualizacao mensal de dados abertos)"
+        run: |
+          mkdir -p data/raw-anp
+          baixa() {  # baixa e só aceita se for o CSV esperado (o gov.br às vezes devolve página HTML)
+            destino="$1"; url="$2"; marca="$3"
+            if curl -fsSL -A "$UA" --retry 3 -o "$destino.tmp" "$url" && head -c 400 "$destino.tmp" | grep -q "$marca"; then
+              mv "$destino.tmp" "$destino"; echo "ok  $destino ($(wc -c < "$destino") bytes)"
+            else
+              rm -f "$destino.tmp"; echo "sem $destino"
+            fi
+          }
+          ANO=$(date -u +%Y); ANTERIOR=$((ANO - 1))
+          for a in "$ANTERIOR" "$ANO"; do
+            baixa "data/raw-anp/producao-mar-$a.csv" "$BASE/arquivos-producao-de-petroleo-e-gas-natural-nacional/pm/producao-mar-$a.csv" "Mês/Ano"
+          done
+          baixa data/raw-anp/plataformas-operacao.csv "$BASE/lpo/dados-abertos-plataformas-operacao.csv" "NOME DA INSTALA"
+          ls data/raw-anp/producao-mar-*.csv data/raw-anp/plataformas-operacao.csv
+
+      - name: Recalcular a frota
+        run: python -I scripts/anp.py data/raw-anp web/data
+
+      - name: Commit e republicação, se houve mudança
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- web/data/frota.json; then
+            echo "Sem mudança nos dados da ANP."; exit 0
+          fi
+          PERIODO=$(python -c "import json; print(json.load(open('web/data/frota.json'))['periodo'])")
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/data/frota.json
+          git commit -m "Dados da ANP atualizados: produção por poço no mar até $PERIODO"
+          git push
+          # Commits feitos com o token do workflow não disparam outros workflows; a publicação é chamada aqui.
+          gh workflow run pages.yml --ref main

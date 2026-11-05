@@ -465,3 +465,12 @@ select option { background: var(--color-tertiary); color: var(--color-dark); }
   .historia.com-ficha .painel-passos { display: none; }
   .palco { z-index: auto; }
 }
+/* Aviso de prova de conceito na sala de alarmes */
+.aviso-poc { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr; gap: 6px 20px; align-items: start; padding: 16px 18px 17px; border-radius: 12px;
+  background: color-mix(in srgb, var(--color-primary) 9%, var(--color-light)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 35%, transparent); }
+.aviso-poc > .rotulo { padding-top: 4px; white-space: nowrap; }
+.aviso-poc h2 { font-family: var(--font-display); font-weight: 500; font-size: calc(var(--grid) * 2.4); line-height: 1.2; margin-bottom: 6px; }
+.aviso-poc p { font-size: calc(var(--grid) * 1.7); line-height: 1.5; max-width: 880px; }
+.aviso-poc p + p { margin-top: 6px; }
+.simulacao { flex-basis: 100%; order: 11; font-size: calc(var(--grid) * 1.5); color: var(--tinta-70); }
+@media (max-width: 860px) { .aviso-poc { grid-template-columns: 1fr; } }
