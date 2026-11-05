@@ -22,6 +22,8 @@
     ['Bacia de Campos', ['Campos']],
     ['Bacia de Santos', ['Santos']],
   ];
+  // Botão "Ver detalhes / Recolher" dos cartões (só aparece no celular; no desktop tudo fica aberto).
+  const EXPANDIR = '<button type="button" class="expandir" aria-expanded="false"><span>Ver detalhes</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>';
   const st = { frota: null, mapa: null, demo: new Map(), sel: null, aba: null, caps: [], cap: -1, pronto: false };
 
   function anima(el, cls) {
@@ -78,7 +80,9 @@
   }
 
   // Balão: centralizado acima do cursor, com a ponta para baixo; perto do topo, vira para baixo do cursor.
-  function mostrarDica(html) { const d = st.dica; if (d.innerHTML !== html) d.innerHTML = html; d.classList.add('on'); }
+  // Em tela de toque não há "passar o mouse": a dica ficaria presa depois do toque. Lá, quem mostra os dados é a ficha.
+  const toque = () => matchMedia('(hover: none)').matches;
+  function mostrarDica(html) { if (toque()) return; const d = st.dica; if (d.innerHTML !== html) d.innerHTML = html; d.classList.add('on'); }
   function esconderDica() { st.dica && st.dica.classList.remove('on'); }
   function posicionarDica(cx, cy) {
     const d = st.dica, w = d.offsetWidth, h = d.offsetHeight, folga = 14;
@@ -187,24 +191,24 @@
         const max = Math.max(...porGrupo.map((g) => g.v));
         return `<section class="passo" data-k="${k}">${cab}<h3>Frota offshore, de norte a sul</h3>
           <div class="para-que-serve"><p class="rotulo-menor">Para que serve</p><p>Ver num só lugar onde a produção no mar está abaixo do normal e chegar à unidade e ao poço que pedem atenção. Dali, um clique leva à sala de alarmes.</p></div>
-          <p class="descricao">${it.length} instalações no mar, de ${lat(tudo[0].lat)} a ${lat(tudo[tudo.length - 1].lat)}. Cada círculo é uma instalação; ao aproximar, vira uma coluna 3D com altura igual ao petróleo por dia. Clique ou toque para abrir a ficha.</p>
-          <p class="rotulo-menor">Petróleo por dia, por trecho do litoral</p>
-          <ol class="barras-lat">${porGrupo.map((g) => `<li data-dica="${g.t}" data-dica-sub="${n0(g.v)} bbl/d de petróleo"><span>${g.t}</span><span class="b"><i style="width:${Math.max(1, (g.v / max) * 100)}%"></i></span><b>${g.v < 10000 ? n1(g.v / 1000) : n0(g.v / 1000)}<small> mil bbl</small></b></li>`).join('')}</ol>
-          <p class="dica">Role em qualquer lugar da tela, ou use ↓, para descer o litoral</p></section>`;
+          <p class="descricao det">${it.length} instalações no mar, de ${lat(tudo[0].lat)} a ${lat(tudo[tudo.length - 1].lat)}. Cada círculo é uma instalação; ao aproximar, vira uma coluna 3D com altura igual ao petróleo por dia. Clique ou toque para abrir a ficha.</p>
+          <p class="rotulo-menor det">Petróleo por dia, por trecho do litoral</p>
+          <ol class="barras-lat det">${porGrupo.map((g) => `<li data-dica="${g.t}" data-dica-sub="${n0(g.v)} bbl/d de petróleo"><span>${g.t}</span><span class="b"><i style="width:${Math.max(1, (g.v / max) * 100)}%"></i></span><b>${g.v < 10000 ? n1(g.v / 1000) : n0(g.v / 1000)}<small> mil bbl</small></b></li>`).join('')}</ol>
+          <p class="dica">${largo() ? 'Role em qualquer lugar da tela, ou use ↓, para descer o litoral' : 'Deslize o cartão para o lado, ou use as setas, para descer o litoral'}</p>${EXPANDIR}</section>`;
       }
       if (c.tipo === 'numeros') {
         const [ano, mes] = f.periodo.split('-');
         return `<section class="passo" data-k="${k}">${cab}<h3>O mês na frota</h3>
-          <p class="descricao">${mes}/${ano}: último mês publicado pela ANP. O normal de cada poço e de cada unidade é a própria média diária de ${f.referencia}.</p>
-          ${kpis(f)}</section>`;
+          <p class="descricao det">${mes}/${ano}: último mês publicado pela ANP. O normal de cada poço e de cada unidade é a própria média diária de ${f.referencia}.</p>
+          ${kpis(f)}${EXPANDIR}</section>`;
       }
       if (c.tipo === 'fim') {
         return `<section class="passo" data-k="${k}">${cab}<h3>A frota inteira, num só olhar</h3>
           <p class="descricao">Gire, incline e aproxime o globo à vontade. Clique ou toque numa instalação para abrir a ficha. Em amarelo, as que têm replay na sala de alarmes.</p>
-          <div class="legenda"><span><i class="leg-ponto"></i> instalação</span><span><i class="leg-ponto demo"></i> com replay de demonstração</span><span><i class="leg-coluna"></i> altura da coluna = petróleo por dia</span></div>
-          <p class="rotulo-menor">Mais abaixo do normal · unidades acima de 2 mil bbl/d</p>
-          <ol class="barras-inst ranking-fim">${ranking(f).map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span>${i.instalacao}</span><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.round(Math.min(1, i.disponibilidade) * 100)}%"></i></span><b>${pct(i.disponibilidade)}</b></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${i.instalacao}" data-dica-sub="${pct(i.disponibilidade)} do normal · ${i.pocos_com_parada} de ${i.pocos} poços abaixo do normal"`)).join('')}</ol>
-          <p class="descricao">Barra = produção do mês em relação à média do ano (cheia = 100%).</p></section>`;
+          <div class="legenda det"><span><i class="leg-ponto"></i> instalação</span><span><i class="leg-ponto demo"></i> com replay de demonstração</span><span><i class="leg-coluna"></i> altura da coluna = petróleo por dia</span></div>
+          <p class="rotulo-menor det">Mais abaixo do normal · unidades acima de 2 mil bbl/d</p>
+          <ol class="barras-inst ranking-fim det">${ranking(f).map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span>${i.instalacao}</span><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.round(Math.min(1, i.disponibilidade) * 100)}%"></i></span><b>${pct(i.disponibilidade)}</b></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${i.instalacao}" data-dica-sub="${pct(i.disponibilidade)} do normal · ${i.pocos_com_parada} de ${i.pocos} poços abaixo do normal"`)).join('')}</ol>
+          <p class="descricao det">Barra = produção do mês em relação à média do ano (cheia = 100%).</p>${EXPANDIR}</section>`;
       }
       const mostra = c.lista.length > 8 ? [...c.lista].sort((a, b) => b.oleo_bbl_d - a.oleo_bbl_d).slice(0, 8).sort((a, b) => b.lat - a.lat) : c.lista;
       const max = Math.max(...mostra.map((i) => i.oleo_bbl_d));
@@ -214,16 +218,30 @@
           <div><p class="passo-valor">${n0(oleo / 1000)}<small>mil bbl/d</small></p><p class="descricao">${pct(oleo / oleoTot)} do petróleo no mar</p></div>
           <div><p class="passo-valor">${c.lista.length}<small>${c.lista.length === 1 ? 'instalação' : 'instalações'}</small></p><p class="descricao">${n0(pocos)} poços produtores</p></div>
         </div>
-        ${empilhada([{ v: oleo, cls: 'forte', rot: `${c.titulo}` }, { v: oleoTot - oleo, cls: 'fraco', rot: 'resto do mar' }], false)}
-        <p class="rotulo-menor">Petróleo por instalação, mil bbl/d${c.lista.length > mostra.length ? ` · as ${mostra.length} maiores de ${c.lista.length}` : ''} · <span class="leg-critico">vermelho</span> = abaixo de 50% do normal</p>
-        <ol class="barras-inst">${mostra.map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span>${i.instalacao}</span><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.max(2, (i.oleo_bbl_d / max) * 100)}%"></i></span><b>${n1(i.oleo_bbl_d / 1000)}</b></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${i.instalacao}" data-dica-sub="${n0(i.oleo_bbl_d)} bbl/d · ${pct(i.disponibilidade)} do normal · ${i.pocos_com_parada} de ${i.pocos} poços abaixo do normal"`)).join('')}</ol>
-        <p class="rotulo-menor">Poços abaixo do normal · ${parados} de ${pocos}</p>${pontos(pocos, parados)}
-        <p class="descricao">Mais abaixo do normal: <b>${pior.instalacao}</b>, ${pct(pior.disponibilidade)} da média do ano.</p></section>`;
+        <div class="det">${empilhada([{ v: oleo, cls: 'forte', rot: `${c.titulo}` }, { v: oleoTot - oleo, cls: 'fraco', rot: 'resto do mar' }], false)}</div>
+        <p class="rotulo-menor det">Petróleo por instalação, mil bbl/d${c.lista.length > mostra.length ? ` · as ${mostra.length} maiores de ${c.lista.length}` : ''} · <span class="leg-critico">vermelho</span> = abaixo de 50% do normal</p>
+        <ol class="barras-inst det">${mostra.map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span>${i.instalacao}</span><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.max(2, (i.oleo_bbl_d / max) * 100)}%"></i></span><b>${n1(i.oleo_bbl_d / 1000)}</b></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${i.instalacao}" data-dica-sub="${n0(i.oleo_bbl_d)} bbl/d · ${pct(i.disponibilidade)} do normal · ${i.pocos_com_parada} de ${i.pocos} poços abaixo do normal"`)).join('')}</ol>
+        <p class="rotulo-menor det">Poços abaixo do normal · ${parados} de ${pocos}</p><div class="det">${pontos(pocos, parados)}</div>
+        <p class="descricao">Mais abaixo do normal: <b>${pior.instalacao}</b>, ${pct(pior.disponibilidade)} da média do ano.</p>${EXPANDIR}</section>`;
     }).join('');
     document.querySelectorAll('.barras-inst button').forEach((b) => b.addEventListener('click', () => selecionar(b.dataset.nome, { voar: true })));
-    // No desktop os passos rolam dentro do painel sobre o globo; no celular, a página rola.
-    const obs = new IntersectionObserver((ents) => ents.forEach((e) => { if (e.isIntersecting) ativar(+e.target.dataset.k); }), { root: largo() ? $('#passos') : null, rootMargin: '-45% 0px -45% 0px' });
-    document.querySelectorAll('.passo').forEach((p) => obs.observe(p));
+    // Desktop: os passos rolam dentro do painel e o capítulo do meio fica ativo.
+    // Celular: um cartão por vez (stepper), trocado por setas, pontos ou deslizando para o lado.
+    if (largo()) {
+      const obs = new IntersectionObserver((ents) => ents.forEach((e) => { if (e.isIntersecting) ativar(+e.target.dataset.k); }), { root: $('#passos'), rootMargin: '-45% 0px -45% 0px' });
+      document.querySelectorAll('.passo').forEach((p) => obs.observe(p));
+    }
+    $('#pontos-passo').innerHTML = st.caps.map((c, k) => `<button type="button" data-k="${k}" aria-label="Capítulo ${k + 1}: ${c.titulo}"></button>`).join('');
+    document.querySelectorAll('#pontos-passo button').forEach((b) => b.addEventListener('click', () => irPara(+b.dataset.k)));
+    document.querySelectorAll('.passo .expandir').forEach((b) => b.addEventListener('click', () => {
+      const sec = b.closest('.passo'), aberto = !sec.classList.contains('aberto');
+      sec.classList.toggle('aberto', aberto);
+      b.setAttribute('aria-expanded', String(aberto));
+      b.querySelector('span').textContent = aberto ? 'Recolher' : 'Ver detalhes';
+      if (aberto) [...sec.querySelectorAll('.det')].forEach((d, i) => { d.style.setProperty('--i', i); anima(d, 'troca'); });
+      // O cartão muda de altura: o globo reenquadra para a área livre acima dele.
+      if (!largo()) setTimeout(() => enquadrar(st.caps[st.cap]), 60);
+    }));
     navegacao();
     ativar(0);
   }
@@ -235,8 +253,12 @@
     const sec = document.querySelector(`.passo[data-k="${k}"]`);
     if (!sec) return;
     const comportamento = calmo() ? 'auto' : 'smooth';
-    if (largo()) { const p = $('#passos'); p.scrollTo({ top: sec.offsetTop - p.offsetTop, behavior: comportamento }); }
-    else sec.scrollIntoView({ behavior: comportamento, block: 'center' });
+    if (largo()) { const p = $('#passos'); p.scrollTo({ top: sec.offsetTop - p.offsetTop, behavior: comportamento }); return; }
+    // Celular: troca o cartão; ele entra pelo lado de onde veio o gesto.
+    const ida = k > st.cap;
+    ativar(k);
+    $('#passos').scrollTop = 0;
+    anima(sec, ida ? 'entra-dir' : 'entra-esq');
   }
   function navegacao() {
     $('#cap-ant').addEventListener('click', () => irPara(st.cap - 1));
@@ -246,6 +268,17 @@
       if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); irPara(st.cap + 1); }
       if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); irPara(st.cap - 1); }
     });
+    // Deslizar o cartão para o lado troca de capítulo (celular).
+    let x0 = null, y0 = 0;
+    const painel = $('.painel-passos');
+    painel.addEventListener('touchstart', (e) => { const t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; }, { passive: true });
+    painel.addEventListener('touchend', (e) => {
+      if (x0 == null || largo()) return;
+      const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.4) irPara(st.cap + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+    // Ao cruzar o ponto de quebra (celular ⇄ desktop), recarrega no layout certo.
+    matchMedia('(min-width: 861px)').addEventListener('change', () => location.reload());
     let acum = 0, trava = 0;
     $('.palco').addEventListener('wheel', (e) => {
       if (!largo() || e.ctrlKey || e.target.closest('.ficha')) return;
@@ -263,6 +296,7 @@
     document.querySelectorAll('.passo').forEach((p) => p.classList.toggle('ativo', +p.dataset.k === k));
     $('#contador-n').textContent = `${k + 1} / ${total}`;
     $('#contador-i').style.transform = `scaleX(${(k + 1) / total})`;
+    document.querySelectorAll('#pontos-passo button').forEach((b) => b.setAttribute('aria-current', String(+b.dataset.k === k)));
     $('#cap-ant').disabled = k === 0;
     $('#cap-prox').disabled = k === total - 1;
     const sec = document.querySelector(`.passo[data-k="${k}"]`);
@@ -276,7 +310,13 @@
 
   // Folga da câmera: no desktop o painel ocupa a esquerda e a ficha a direita.
   function folga() {
-    if (!largo()) return { top: 40, bottom: 40, left: 30, right: 30 };
+    if (!largo()) {
+      // Celular: a área livre é o que sobra acima do cartão (ou da ficha, se aberta).
+      const cartao = st.sel && !$('#ficha').hidden ? $('#ficha') : $('.painel-passos');
+      const alto = cartao ? cartao.offsetHeight : 0;
+      const h = st.mapa ? st.mapa.getCanvas().clientHeight : window.innerHeight;
+      return { top: 24, bottom: Math.max(24, Math.min(alto + 20, h - 180)), left: 24, right: 24 };
+    }
     return { top: 60, bottom: 60, left: 460, right: st.sel ? 400 : 80 };
   }
   function enquadrar(c) {
@@ -284,15 +324,24 @@
     const b = new maplibregl.LngLatBounds();
     c.lista.forEach((i) => b.extend([i.lon, i.lat]));
     const fim = c.tipo === 'fim';
-    const cam = st.mapa.cameraForBounds(b, { padding: folga(), maxZoom: fim ? 4.6 : 8 });
+    // Se a margem não couber na tela, o MapLibre não devolve câmera: aí usa um zoom fixo.
+    let cam = null;
+    try { cam = st.mapa.cameraForBounds(b, { padding: folga(), maxZoom: fim ? 4.6 : 8 }); } catch { cam = null; }
+    if (!cam || !Number.isFinite(cam.zoom)) cam = { zoom: fim ? 3.6 : 6 };
     // cameraForBounds já desconta a folga no zoom; o centro vai sem deslocamento, porque mover() aplica a folga de novo.
     mover({ center: b.getCenter(), zoom: cam.zoom - (fim ? 0 : 0.3), pitch: fim ? 0 : 55, bearing: fim ? 0 : -15 });
   }
   function mover(cam) {
     cam = { ...cam, padding: folga() };
     if (cam.zoom == null) delete cam.zoom;
-    if (calmo()) st.mapa.jumpTo(cam);
-    else st.mapa.flyTo({ ...cam, duration: 2200, essential: true, curve: 1.3 });
+    try {
+      if (calmo()) st.mapa.jumpTo(cam);
+      else st.mapa.flyTo({ ...cam, duration: 2200, essential: true, curve: 1.3 });
+    } catch {
+      // Tela pequena demais para a margem pedida: voa sem margem.
+      delete cam.padding;
+      st.mapa.jumpTo(cam);
+    }
   }
 
   // ---------- Globo (MapLibre GL, projeção globo, WebGL) ----------
@@ -392,6 +441,9 @@
         posicionarDica(e.originalEvent.clientX, e.originalEvent.clientY);
       });
       m.getCanvas().addEventListener('mouseleave', esconderDica);
+      // Créditos do mapa começam recolhidos (o ícone ⓘ abre).
+      document.querySelectorAll('.maplibregl-ctrl-attrib.maplibregl-compact-show').forEach((a) => a.classList.remove('maplibregl-compact-show'));
+      document.querySelectorAll('.maplibregl-ctrl-attrib[open]').forEach((a) => a.removeAttribute('open'));
       st.pronto = true;
       const k = st.cap; st.cap = -1; ativar(Math.max(0, k));
     });
@@ -402,6 +454,7 @@
     if (st.sel) estado(st.sel, { sel: false });
     st.sel = null;
     $('#ficha').hidden = true;
+    $('#historia').classList.remove('com-ficha');
     document.querySelectorAll('[data-nome]').forEach((b) => b.setAttribute('aria-current', 'false'));
   }
 
@@ -433,6 +486,8 @@
         <button class="botao primario" type="button" id="abrir-demo">Abrir na sala de alarmes</button>
         <p class="descricao">Ligação ilustrativa: o 3W é anonimizado e não informa a unidade real de cada poço</p></div>` : ''}`;
     ficha.hidden = false;
+    // No celular a ficha ocupa o lugar do cartão do capítulo.
+    $('#historia').classList.add('com-ficha');
     ficha.scrollTop = 0;
     [...ficha.children].forEach((c, k) => c.style.setProperty('--i', k));
     anima(ficha, 'cascata');

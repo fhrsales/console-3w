@@ -2,6 +2,8 @@
 const $ = (s) => document.querySelector(s);
 const fmt = (n, d = 1) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
 const hora = (iso) => iso.slice(11, 16);
+// Tempo do caso (desde o início do replay), em vez do relógio da data original.
+const tempo = (seg) => { const h = Math.floor(seg / 3600), m = Math.floor((seg % 3600) / 60), s = Math.floor(seg % 60); return `T+${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; };
 
 // Ícones em traço sólido, na cor da tinta.
 const ICONE = {
@@ -33,12 +35,14 @@ async function iniciar() {
   // fica guardado no próprio navegador.
   try { st.feedback = await json('api/feedback'); st.local = false; } catch { st.local = true; st.feedback = lerLocal(); }
   const ol = $('#instancias');
+  // Mais recentes primeiro: os casos de 2020 a 2023 abrem a lista.
+  st.idx.instancias.sort((a, b) => b.inicio.localeCompare(a.inicio));
   st.idx.instancias.forEach((it) => {
     const li = document.createElement('li');
     li.innerHTML = `<button type="button" data-id="${it.id}">
       <span class="nome">Poço ${it.poco.replace('WELL-', '')}</span>
       <span class="selo ${it.alertas ? '' : 'zero'}">${it.alertas} ${it.alertas === 1 ? 'alerta' : 'alertas'}</span>
-      <span class="quando">${it.inicio.slice(8, 10)}/${it.inicio.slice(5, 7)}/${it.inicio.slice(0, 4)} ${it.inicio.slice(11, 16)} · ${it.duracao_min} min</span>
+      <span class="quando">${it.duracao_min} min de sinais · registro de ${it.inicio.slice(0, 4)}</span>
       <span class="gab">Rótulo da base: ${it.evento_rotulado}</span></button>`;
     li.querySelector('button').addEventListener('click', () => abrir(it.id));
     ol.appendChild(li);
@@ -56,7 +60,7 @@ async function iniciar() {
   window.addEventListener('resize', () => tracoVelocidade(true));
   window.addEventListener('hashchange', () => setTimeout(() => tracoVelocidade(true), 0));
   placar(false);
-  if (!st.dado) { const primeiro = st.idx.instancias.find((i) => i.codigo_rotulado === 3) || st.idx.instancias[0]; abrir(primeiro.id); }
+  if (!st.dado) { const primeiro = st.idx.instancias.find((i) => i.alertas && i.inicio >= '2023') || st.idx.instancias.find((i) => i.alertas) || st.idx.instancias[0]; abrir(primeiro.id); }
 }
 
 async function abrir(id) {
@@ -69,7 +73,7 @@ async function abrir(id) {
   st.pos = Math.min(st.dado.score.length - 1, 200);
   st.mostrado = null;
   fecharAlerta();
-  $('#p-rotulo').textContent = `Replay · início ${st.dado.inicio.slice(8, 10)}/${st.dado.inicio.slice(5, 7)}/${st.dado.inicio.slice(0, 4)} ${st.dado.inicio.slice(11, 16)}`;
+  $('#p-rotulo').textContent = `Replay · caso real do 3W · registro de ${st.dado.inicio.slice(0, 4)}`;
   $('#p-titulo').textContent = `Poço ${st.dado.poco.replace('WELL-', '')}`;
   const c = $('#cursor'); c.max = st.dado.score.length - 1; c.disabled = false; $('#play').disabled = false;
   montar();
@@ -145,8 +149,7 @@ function desenhar(silencioso = false) {
   const cur = $('#cur'); cur.setAttribute('x1', xOf(p)); cur.setAttribute('x2', xOf(p));
   document.querySelectorAll('.marca').forEach((m) => { m.style.display = d.alertas[+m.dataset.a].i - 1 <= p ? '' : 'none'; });
   $('#cursor').value = p;
-  const t = new Date(new Date(d.inicio.replace(' ', 'T')).getTime() + p * d.passo_s * 1000);
-  $('#relogio').textContent = t.toTimeString().slice(0, 8);
+  $('#relogio').textContent = tempo(p * d.passo_s);
   $('#restante').textContent = `${Math.round(p / 6)} / ${Math.round((n - 1) / 6)} min`;
   const vistos = d.alertas.map((a, j) => [a, j]).filter(([a]) => a.i - 1 <= p);
   const atual = vistos.length ? vistos[vistos.length - 1][1] : null;
@@ -180,12 +183,12 @@ function mostrarAlerta(a) {
     .map(([, v]) => `<option value="${v}" ${a.sugestao[0].evento === v ? 'selected' : ''}>${v}</option>`).join('');
   el.innerHTML = `
     <div class="topo-alerta">
-      <span class="selo selo-alerta">${ICONE.alerta} Alerta às ${hora(a.t)} · índice ${fmt(a.score)}</span>
+      <span class="selo selo-alerta">${ICONE.alerta} Alerta em ${tempo((a.i - 1) * st.dado.passo_s)} · índice ${fmt(a.score)}</span>
       <h3>O poço saiu do próprio normal. Pode ser ${a.sugestao[0].evento.toLowerCase()}</h3>
     </div>
     <div class="bloco"><h4 class="rotulo">Por que alertou</h4><ul>${a.motivos.map((m) => `<li><strong>${m.nome}</strong>${frase(m)}</li>`).join('')}</ul></div>
     <div class="bloco"><h4 class="rotulo">O que pode ser</h4><ul>${a.sugestao.map((s, i) => `<li class="prob" style="--i:${i}"><span>${s.evento}</span><span class="barra-prob"><i style="width:${Math.round(s.prob * 100)}%"></i></span><b>${Math.round(s.prob * 100)}%</b></li>`).join('')}</ul>
-      <h4 class="rotulo segundo" style="margin-top:16px">Parecidos no histórico</h4><ul>${a.similares.map((s) => `<li><strong>${s.evento}</strong>Poço ${s.poco.replace('WELL-', '')} · ${s.quando.slice(8, 10)}/${s.quando.slice(5, 7)}/${s.quando.slice(0, 4)}</li>`).join('')}</ul></div>
+      <h4 class="rotulo segundo" style="margin-top:16px">Parecidos no histórico</h4><ul>${a.similares.map((s) => `<li><strong>${s.evento}</strong>Poço ${s.poco.replace('WELL-', '')} · registro de ${s.quando.slice(0, 4)}</li>`).join('')}</ul></div>
     <div class="decisao" id="decisao">${fb ? retorno(fb) : `
       <button class="botao primario" id="b-conf" type="button">Confirmo</button>
       <select id="s-ev" aria-label="Evento confirmado">${opcoes}</select>

@@ -39,6 +39,7 @@ WIN = 30            # 30 amostras de 10 s = 5 min
 BASE = 120          # 20 min de linha de base
 THRESH = 3.0
 SUSTAIN = 3
+MAX_PASSOS = 2160   # 6 h em passos de 10 s
 
 
 def load(path):
@@ -51,6 +52,13 @@ def load(path):
             out[v] = s / 1e5 if UNITS[v] == "bar" else s
     out = out.ffill().bfill()
     out["label"] = d["class"].astype("float").resample(STEP).max()
+    # Casos longos (dias) viram uma janela de 6 h: começa 100 min antes do primeiro rótulo de evento,
+    # para o detector ver o trecho normal e depois o evento, sem arquivos de vários MB no navegador.
+    if len(out) > MAX_PASSOS:
+        ev = np.flatnonzero(out["label"].fillna(0).values % 100 > 0)
+        ini = max(0, (ev[0] if len(ev) else 0) - 600)
+        ini = min(ini, len(out) - MAX_PASSOS)
+        out = out.iloc[ini:ini + MAX_PASSOS]
     return out
 
 

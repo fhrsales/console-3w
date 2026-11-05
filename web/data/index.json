@@ -130,7 +130,7 @@
    "evento_rotulado": "Golfada severa",
    "codigo_rotulado": 3,
    "alertas": 1,
-   "primeiro_alerta": "Golfada severa"
+   "primeiro_alerta": "Incrustação no choke"
   },
   {
    "id": "WELL-00014_20170919200016",
@@ -190,7 +190,7 @@
    "evento_rotulado": "Perda rápida de produtividade",
    "codigo_rotulado": 5,
    "alertas": 1,
-   "primeiro_alerta": "Golfada severa"
+   "primeiro_alerta": "Incrustação no choke"
   },
   {
    "id": "WELL-00016_20180426131710",
@@ -210,7 +210,7 @@
    "evento_rotulado": "Perda rápida de produtividade",
    "codigo_rotulado": 5,
    "alertas": 1,
-   "primeiro_alerta": "Golfada severa"
+   "primeiro_alerta": "Incrustação no choke"
   },
   {
    "id": "WELL-00004_20171031171509",
@@ -220,7 +220,7 @@
    "evento_rotulado": "Restrição rápida no choke",
    "codigo_rotulado": 6,
    "alertas": 1,
-   "primeiro_alerta": "Instabilidade de fluxo"
+   "primeiro_alerta": "Incrustação no choke"
   },
   {
    "id": "WELL-00004_20171031181500",
@@ -245,22 +245,72 @@
   {
    "id": "WELL-00021_20180611011218",
    "poco": "WELL-00021",
-   "inicio": "2018-06-11 01:12",
-   "duracao_min": 776,
+   "inicio": "2018-06-11 05:24",
+   "duracao_min": 360,
+   "evento_rotulado": "Incrustação no choke",
+   "codigo_rotulado": 7,
+   "alertas": 2,
+   "primeiro_alerta": "Golfada severa"
+  },
+  {
+   "id": "WELL-00024_20160920153331",
+   "poco": "WELL-00024",
+   "inicio": "2016-09-20 16:30",
+   "duracao_min": 360,
    "evento_rotulado": "Incrustação no choke",
    "codigo_rotulado": 7,
    "alertas": 1,
    "primeiro_alerta": "Golfada severa"
   },
   {
-   "id": "WELL-00024_20160920153331",
-   "poco": "WELL-00024",
-   "inicio": "2016-09-20 15:33",
-   "duracao_min": 417,
-   "evento_rotulado": "Incrustação no choke",
-   "codigo_rotulado": 7,
+   "id": "WELL-00019_20210617032654",
+   "poco": "WELL-00019",
+   "inicio": "2021-06-17 16:58",
+   "duracao_min": 360,
+   "evento_rotulado": "Hidrato na linha de produção",
+   "codigo_rotulado": 8,
+   "alertas": 2,
+   "primeiro_alerta": "Incrustação no choke"
+  },
+  {
+   "id": "WELL-00025_20200629194141",
+   "poco": "WELL-00025",
+   "inicio": "2020-06-30 18:50",
+   "duracao_min": 360,
+   "evento_rotulado": "Hidrato na linha de produção",
+   "codigo_rotulado": 8,
    "alertas": 1,
-   "primeiro_alerta": "Golfada severa"
+   "primeiro_alerta": "Incrustação no choke"
+  },
+  {
+   "id": "WELL-00027_20230918170106",
+   "poco": "WELL-00027",
+   "inicio": "2023-09-19 05:58",
+   "duracao_min": 360,
+   "evento_rotulado": "Hidrato na linha de produção",
+   "codigo_rotulado": 8,
+   "alertas": 3,
+   "primeiro_alerta": "Incrustação no choke"
+  },
+  {
+   "id": "WELL-00028_20210617053128",
+   "poco": "WELL-00028",
+   "inicio": "2021-06-17 16:59",
+   "duracao_min": 360,
+   "evento_rotulado": "Hidrato na linha de produção",
+   "codigo_rotulado": 8,
+   "alertas": 1,
+   "primeiro_alerta": "Incrustação no choke"
+  },
+  {
+   "id": "WELL-00029_20201020231724",
+   "poco": "WELL-00029",
+   "inicio": "2020-10-21 14:30",
+   "duracao_min": 360,
+   "evento_rotulado": "Hidrato na linha de produção",
+   "codigo_rotulado": 8,
+   "alertas": 3,
+   "primeiro_alerta": "Incrustação no choke"
   },
   {
    "id": "WELL-00036_20190925100042",
@@ -280,7 +330,7 @@
    "evento_rotulado": "Hidrato na linha de serviço",
    "codigo_rotulado": 9,
    "alertas": 1,
-   "primeiro_alerta": "Instabilidade de fluxo"
+   "primeiro_alerta": "Hidrato na linha de produção"
   },
   {
    "id": "WELL-00036_20190930083101",

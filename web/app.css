@@ -408,3 +408,60 @@ select option { background: var(--color-tertiary); color: var(--color-dark); }
 .maplibregl-canvas-container.maplibregl-interactive { cursor: grab; }
 /* O X fica acima do conteúdo da ficha (a animação de entrada cria camadas que o cobriam). */
 .ficha .fechar { z-index: 3; }
+
+/* ===== Celular: globo de fundo em tela cheia e um cartão por vez (stepper) ===== */
+.pontos-passo { display: none; }
+.expandir { display: none; }
+@keyframes entra-dir { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes entra-esq { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+.entra-dir { animation: entra-dir var(--t-estado) var(--ease) both; }
+.entra-esq { animation: entra-esq var(--t-estado) var(--ease) both; }
+.relogio { min-width: 132px; }
+
+@media (max-width: 860px) {
+  /* A aba Frota ocupa só a tela: o globo é o fundo, nada da página rola. */
+  body.modo-frota .pagina { width: 100%; padding: 0; }
+  .historia { position: relative; display: block; height: calc(100svh - var(--altura-barra, 56px)); min-height: 0; overflow: hidden; }
+  .palco { position: absolute; inset: 0; top: 0; height: auto; min-height: 0; z-index: 0; border: 0; }
+
+  /* Cartão flutuante no pé da tela */
+  .painel-passos { position: absolute; left: 10px; right: 10px; bottom: 10px; top: auto; width: auto; display: grid; grid-template-rows: auto minmax(0, 1fr); max-height: 58%; border-radius: 16px;
+    background: color-mix(in srgb, var(--color-light) 88%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 0 0 1px var(--color-rule), 0 -8px 30px rgba(0,0,0,.45); overflow: hidden; z-index: 2; }
+  .contador { position: static; top: auto; padding: 10px 14px 8px; gap: 10px; font-size: 16px; background: none; }
+  .contador-barra { display: none; }
+  .pontos-passo { display: flex; flex: 1; justify-content: center; gap: 2px; }
+  .pontos-passo button { width: 18px; height: 22px; border: 0; background: none; padding: 0; cursor: pointer; display: grid; place-items: center; }
+  .pontos-passo button::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--tinta-45); transition: width var(--t-estado) var(--ease), background var(--t-cor) var(--ease); }
+  .pontos-passo button[aria-current="true"]::before { width: 16px; border-radius: 3px; background: var(--color-primary); }
+  .contador .seta { width: 40px; height: 34px; }
+  .passos { overflow-y: auto; overscroll-behavior: contain; padding: 0 16px 14px; }
+  .fonte-tela { display: none; }
+
+  /* Só o capítulo ativo aparece */
+  .passo, .passo:first-child, .passo:last-child { display: none; min-height: 0; height: auto; opacity: 1; padding: 6px 0 4px; gap: 10px; border-top: 0; align-content: start; }
+  .passo + .passo { border-top: 0; }
+  .passo.ativo { display: grid; }
+  .passo h3 { font-size: 23px; }
+  .passo-valor { font-size: 30px; }
+  .passo .kpis { border-top: 1px solid var(--color-rule); }
+  .passo .kpi-valor { font-size: 28px; }
+
+  /* Recolhido: só título e números principais. "Ver detalhes" abre o resto. */
+  .passo:not(.aberto) .det,
+  .passo:not(.aberto) .kpi .descricao,
+  .passo:not(.aberto) .kpi .empilhada,
+  .passo:not(.aberto) .kpi .pontos { display: none; }
+  .expandir { display: inline-flex; align-items: center; justify-self: start; gap: 6px; height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--color-rule); background: none; color: var(--color-dark); font-size: 14px; font-weight: 500; cursor: pointer; }
+  .expandir svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform var(--t-estado) var(--ease); }
+  .passo.aberto .expandir svg { transform: rotate(180deg); }
+  .passo.aberto .det { animation-delay: calc(var(--i, 0) * 40ms); }
+
+  /* A ficha da unidade ocupa o lugar do cartão */
+  .ficha { position: absolute; left: 10px; right: 10px; bottom: 10px; top: auto; width: auto; max-height: 72%; z-index: 3; border-radius: 16px; }
+  .maplibregl-ctrl-bottom-right { bottom: auto; top: 0; }
+}
+@media (max-width: 860px) {
+  .historia.com-ficha .painel-passos { display: none; }
+  .palco { z-index: auto; }
+}
