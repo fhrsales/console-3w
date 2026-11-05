@@ -7,7 +7,7 @@ Sala de alarmes inteligente para poços offshore, construída sobre a base abert
 
 ## O que faz
 
-1. **Frota** — globo 3D com as 74 instalações de produção no mar, percorrido de norte a sul. Cada instalação é uma coluna com altura igual ao petróleo por dia; a ficha mostra petróleo e água (BSW), horas produzidas no mês e poços com parada.
+1. **Frota** — globo 3D com as 76 instalações de produção no mar, percorrido de norte a sul. Cada instalação é uma coluna com altura igual ao petróleo por dia; a ficha mostra petróleo e água (BSW), produção contra o próprio normal, uso da capacidade e poços abaixo do normal.
 2. **Sala de alarmes** — replay de casos reais do 3W. Quando o poço sai do próprio comportamento normal, o console alerta e explica:
    - **por que alertou** (quais sinais mudaram e quanto);
    - **o que pode ser** (eventos mais prováveis da taxonomia do 3W) e casos parecidos no histórico.
@@ -31,7 +31,7 @@ Com o `server.py`, o retorno do operador vai para `feedback.jsonl`. No site est�
 ## Fontes
 
 - **3W Dataset 2.0**, Petrobras — https://github.com/petrobras/3W (dados CC-BY 4.0).
-- **ANP**, dados abertos — produção de petróleo e gás natural por poço (dez/2023, último mês publicado por poço) e tabela de poços (BDEP).
+- **ANP**, dados abertos (fase de desenvolvimento e produção) — produção por poço no mar (set/2026, último mês publicado; o "normal" de cada poço e unidade é a média de jan a ago/2026) e plataformas em operação (posição, tipo, capacidade).
 - Globo: MapLibre GL JS; mapa base Esri, HERE, Garmin, © OpenStreetMap.
 - Logotipo Petrobras via Wikimedia Commons, usado só para identificar a quem a proposta se destina.
 

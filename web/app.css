@@ -379,8 +379,22 @@ select option { background: var(--color-tertiary); color: var(--color-dark); }
 .fonte-tela { margin: 0; padding: 8px calc(var(--grid) * 2.4) 10px; border-top: 1px solid var(--color-rule); font-size: 11.5px; line-height: 1.4; color: var(--tinta-70); }
 @media (max-width: 860px) { .fonte-tela { padding: 12px calc(var(--grid) * 2) 24px; } }
 /* Dica flutuante dos infográficos + destaque de grupo nos pontos */
-.dica-flutuante { position: fixed; left: 0; top: 0; z-index: 2000; max-width: 300px; padding: 7px 11px 8px; border-radius: 8px; background: #f1f1f4; color: #111114; font-size: 13px; line-height: 1.35; font-weight: 500; box-shadow: var(--shadow-2); pointer-events: none; opacity: 0; transition: opacity var(--t-cor) var(--ease); }
+.dica-flutuante { position: fixed; left: 0; top: 0; z-index: 2000; min-width: 160px; max-width: 280px; padding: 10px 13px 11px; border-radius: 10px; background: #f6f6f8; color: #111114; box-shadow: 0 10px 28px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.06); pointer-events: none; opacity: 0; transition: opacity var(--t-cor) var(--ease); display: grid; gap: 3px; font-size: 12.5px; line-height: 1.35; }
 .dica-flutuante.on { opacity: 1; }
+.dica-flutuante::after { content: ""; position: absolute; left: var(--seta-x, 50%); bottom: -6px; width: 12px; height: 12px; margin-left: -6px; background: inherit; transform: rotate(45deg); border-radius: 2px; }
+.dica-flutuante.embaixo::after { bottom: auto; top: -6px; }
+.dica-flutuante > b { font-family: var(--font-display); font-weight: 500; font-size: 16px; line-height: 1.15; letter-spacing: -0.01em; }
+.dica-flutuante > span { color: rgba(17,17,20,.62); }
+.dica-flutuante dl { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; margin: 6px 0 2px; padding-top: 7px; border-top: 1px solid rgba(17,17,20,.12); }
+.dica-flutuante dt { font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: rgba(17,17,20,.55); }
+.dica-flutuante dd { margin: 1px 0 0; font-family: var(--font-display); font-weight: 500; font-size: 17px; font-variant-numeric: tabular-nums lining-nums; }
+.dica-flutuante dd small { font-family: var(--font-primary); font-size: 11px; color: rgba(17,17,20,.55); }
+.dica-medidor { display: block; height: 5px; background: rgba(17,17,20,.12); border-radius: 3px; overflow: hidden; }
+.dica-medidor i { display: block; height: 100%; background: var(--pb-verde); }
+.dica-medidor i.critico { background: #d93a2e; }
+.dica-flutuante em { font-style: normal; font-size: 11px; color: var(--pb-verde); font-weight: 600; margin-top: 2px; }
+/* Mãozinha onde há dica */
+[data-dica], [data-dica] * { cursor: pointer; }
 .pontos i { transition: opacity var(--t-cor) var(--ease), transform var(--t-cor) var(--ease); }
 .pontos.foco-parado i.ok, .pontos.foco-ok i.parado { opacity: .2; }
 .pontos.foco-parado i.parado, .pontos.foco-ok i.ok { transform: scale(1.18); }
@@ -392,3 +406,5 @@ select option { background: var(--color-tertiary); color: var(--color-dark); }
 .barras-inst:hover li:not(:hover) { opacity: .5; transition: opacity var(--t-cor) var(--ease); }
 .palco, .mapa { background: #222327; }
 .maplibregl-canvas-container.maplibregl-interactive { cursor: grab; }
+/* O X fica acima do conteúdo da ficha (a animação de entrada cria camadas que o cobriam). */
+.ficha .fechar { z-index: 3; }

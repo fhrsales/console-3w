@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Console 3W</title>
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css">
-<link rel="stylesheet" href="portfolio/styles.css?v=0.1.0-5">
-<link rel="stylesheet" href="app.css?v=0.1.0-5">
+<link rel="stylesheet" href="portfolio/styles.css?v=0.1.0-9">
+<link rel="stylesheet" href="app.css?v=0.1.0-9">
 </head>
 <body>
 <header class="barra">
@@ -37,7 +37,7 @@
         <div class="contador"><span id="contador-n" aria-live="polite">1 / 1</span><span class="contador-barra" aria-hidden="true"><i id="contador-i"></i></span>
           <span class="setas" role="group" aria-label="Capítulos"><button type="button" class="seta" id="cap-ant" aria-label="Capítulo anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button><button type="button" class="seta" id="cap-prox" aria-label="Próximo capítulo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></span></div>
         <div class="passos" id="passos"></div>
-        <p class="fonte-tela">Fonte: ANP, dados abertos — produção por poço (dez/2023, último mês publicado) e tabela de poços (BDEP). Replay: base 3W, Petrobras (CC-BY 4.0).</p>
+        <p class="fonte-tela">Fonte: ANP, dados abertos — produção por poço no mar (set/2026, último mês publicado; normal = média de jan a ago/2026) e plataformas em operação. Replay: base 3W, Petrobras (CC-BY 4.0).</p>
       </div>
     </div>
   </main>
@@ -84,10 +84,10 @@
 
 <footer class="rodape">
   <p class="placar" id="placar">Nenhum alerta avaliado ainda</p>
-  <p class="descricao">Dados: 3W Dataset 2.0, Petrobras (CC-BY 4.0); produção por poço e tabela de poços, dados abertos da ANP; logotipo Petrobras via Wikimedia Commons; globo MapLibre GL com base Esri, HERE, Garmin, © OpenStreetMap. Detector e sugestões treinados numa amostra pequena; o caso em replay nunca entra no treino.</p>
+  <p class="descricao">Dados: 3W Dataset 2.0, Petrobras (CC-BY 4.0); produção por poço no mar (set/2026) e plataformas em operação, dados abertos da ANP; logotipo Petrobras via Wikimedia Commons; globo MapLibre GL com base Esri, HERE, Garmin, © OpenStreetMap. Detector e sugestões treinados numa amostra pequena; o caso em replay nunca entra no treino.</p>
 </footer>
 <script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
-<script src="app.js?v=0.1.0-5"></script>
-<script src="frota.js?v=0.1.0-5"></script>
+<script src="app.js?v=0.1.0-9"></script>
+<script src="frota.js?v=0.1.0-9"></script>
 </body>
 </html>

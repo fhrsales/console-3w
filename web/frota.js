@@ -70,15 +70,24 @@
       if (el === alvo) return;
       if (alvo) alvo.closest('.pontos')?.classList.remove('foco-parado', 'foco-ok');
       alvo = el;
-      if (!el) { d.classList.remove('on'); return; }
-      d.textContent = el.dataset.dica; d.classList.add('on');
+      if (!el) { if (!e.target.closest('.maplibregl-canvas')) esconderDica(); return; }
+      mostrarDica(`<b>${el.dataset.dica}</b>${el.dataset.dicaSub ? `<span>${el.dataset.dicaSub}</span>` : ''}`);
       const g = el.closest('.pontos'); if (g) g.classList.add(el.classList.contains('parado') ? 'foco-parado' : 'foco-ok');
     });
-    document.addEventListener('mousemove', (e) => {
-      if (!alvo) return;
-      const w = d.offsetWidth, x = Math.min(window.innerWidth - w - 8, e.clientX + 14);
-      d.style.transform = `translate(${x}px, ${e.clientY + 18}px)`;
-    });
+    document.addEventListener('mousemove', (e) => { if (alvo) posicionarDica(e.clientX, e.clientY); });
+  }
+
+  // Balão: centralizado acima do cursor, com a ponta para baixo; perto do topo, vira para baixo do cursor.
+  function mostrarDica(html) { const d = st.dica; if (d.innerHTML !== html) d.innerHTML = html; d.classList.add('on'); }
+  function esconderDica() { st.dica && st.dica.classList.remove('on'); }
+  function posicionarDica(cx, cy) {
+    const d = st.dica, w = d.offsetWidth, h = d.offsetHeight, folga = 14;
+    const embaixo = cy - h - folga < 70;
+    const x = Math.max(8, Math.min(window.innerWidth - w - 8, cx - w / 2));
+    const y = embaixo ? cy + folga + 6 : cy - h - folga;
+    d.classList.toggle('embaixo', embaixo);
+    d.style.setProperty('--seta-x', `${Math.max(14, Math.min(w - 14, cx - x))}px`);
+    d.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
   }
 
   async function iniciar() {
@@ -92,6 +101,7 @@
     document.fonts && document.fonts.ready.then(() => moverTraco(true));
     const [frota, idx] = await Promise.all([fetch('data/frota.json').then((r) => r.json()), fetch('data/index.json').then((r) => r.json())]);
     st.frota = frota;
+    st.ref = frota.referencia;
     associarDemo(frota.instalacoes, idx.instancias);
     capitulos(frota);
     globo(frota);
@@ -113,20 +123,21 @@
   // Barra empilhada: partes [{v, cls, rot}].
   function empilhada(partes, legenda = true) {
     const tot = partes.reduce((s, p) => s + p.v, 0) || 1;
-    return `<div class="empilhada"><div class="empilhada-barra">${partes.map((p) => `<i class="${p.cls}" style="width:${(p.v / tot) * 100}%"${p.rot ? ` data-dica="${p.rot}: ${pct(p.v / tot)}"` : ''}></i>`).join('')}</div>
+    return `<div class="empilhada"><div class="empilhada-barra">${partes.map((p) => `<i class="${p.cls}" style="width:${(p.v / tot) * 100}%"${p.rot ? ` data-dica="${p.rot}" data-dica-sub="${pct(p.v / tot)} do total"` : ''}></i>`).join('')}</div>
       ${legenda ? `<div class="empilhada-leg">${partes.map((p) => `<span class="${p.cls}"><b>${pct(p.v / tot)}</b> ${p.rot}</span>`).join('')}</div>` : ''}</div>`;
   }
-  // Um ponto por poço; os que produziram menos de 90% do mês ficam em vermelho.
+  // Um ponto por poço; os que produziram menos de 70% da própria média ficam em vermelho.
   function pontos(total, parados) {
     const max = 60, n = Math.min(total, max);
     const vermelhos = Math.round((parados / Math.max(1, total)) * n);
-    const dP = `${n0(parados)} ${parados === 1 ? 'poço' : 'poços'} com parada · ${pct(parados / Math.max(1, total))}`;
-    const dO = `${n0(total - parados)} ${total - parados === 1 ? 'poço produziu' : 'poços produziram'} 90% do mês ou mais`;
-    return `<div class="pontos" role="img" aria-label="${parados} de ${total} poços com parada">${Array.from({ length: n }, (_, k) => `<i class="${k < vermelhos ? 'parado' : 'ok'}" data-dica="${k < vermelhos ? dP : dO}"></i>`).join('')}${total > max ? `<span>cada ponto ≈ ${n1(total / max)} poços</span>` : ''}</div>`;
+    const dP = `${n0(parados)} ${parados === 1 ? 'poço abaixo' : 'poços abaixo'} do normal" data-dica-sub="${pct(parados / Math.max(1, total))} dos poços · menos de 70% da própria média do ano`;
+    const dO = `${n0(total - parados)} ${total - parados === 1 ? 'poço' : 'poços'} no normal" data-dica-sub="${pct((total - parados) / Math.max(1, total))} dos poços · 70% da própria média ou mais`;
+    return `<div class="pontos" role="img" aria-label="${parados} de ${total} poços abaixo do normal">${Array.from({ length: n }, (_, k) => `<i class="${k < vermelhos ? 'parado' : 'ok'}" data-dica="${k < vermelhos ? dP : dO}"></i>`).join('')}${total > max ? `<span>cada ponto ≈ ${n1(total / max)} poços</span>` : ''}</div>`;
   }
-  // Medidor de horas produzidas (0–100%), com marca nos 90%.
+  // Medidor da produção contra o normal: escala de 0 a 150%, com a marca no normal (100%).
   function medidor(v) {
-    return `<div class="medidor" data-dica="${pct(v)} do mês produzindo · a marca é a meta de 90%"><i class="${v < 0.5 ? 'critico' : ''}" style="width:${Math.round(v * 100)}%"></i><span style="left:90%"></span></div>`;
+    const w = Math.min(1.5, Math.max(0, v || 0)) / 1.5 * 100;
+    return `<div class="medidor" data-dica="${pct(v)} do normal" data-dica-sub="Produção do mês ÷ média diária de ${st.ref || 'meses anteriores'}; a marca é o normal (100%)"><i class="${v < 0.5 ? 'critico' : ''}" style="width:${w}%"></i><span style="left:66.67%"></span></div>`;
   }
 
   function kpis(f) {
@@ -141,7 +152,7 @@
       ['Instalações no mar', it.length, '', `Produção por poço da ANP, ${mes}/${ano}`, ''],
       ['Petróleo por dia', oleo / 1000, 'mil bbl', 'Soma das instalações marítimas', empilhada([{ v: santos, cls: 'forte', rot: 'Santos' }, { v: oleo - santos, cls: 'fraco', rot: 'demais bacias' }])],
       ['Água produzida', agua / 1000, 'mil bbl/d', 'Sai junto com o petróleo', empilhada([{ v: oleo, cls: 'forte', rot: 'petróleo' }, { v: agua, cls: 'agua', rot: 'água' }])],
-      ['Poços com parada', parados, `de ${n0(pocos)}`, 'Produziram menos de 90% do mês', pontos(pocos, parados)],
+      ['Poços abaixo do normal', parados, `de ${n0(pocos)}`, 'Menos de 70% da própria média do ano', pontos(pocos, parados)],
     ].map(([r, v, u, d, g]) => `<div class="kpi"><p class="rotulo-menor">${r}</p><p class="kpi-valor"><span data-alvo="${v}">${n0(v)}</span>${u ? `<small>${u}</small>` : ''}</p><p class="descricao">${d}</p>${g}</div>`).join('')}</div>`;
   }
 
@@ -175,25 +186,25 @@
         const porGrupo = grupos.map((g) => ({ t: g.titulo, v: g.lista.reduce((s, i) => s + i.oleo_bbl_d, 0) }));
         const max = Math.max(...porGrupo.map((g) => g.v));
         return `<section class="passo" data-k="${k}">${cab}<h3>Frota offshore, de norte a sul</h3>
-          <div class="para-que-serve"><p class="rotulo-menor">Para que serve</p><p>Ver num só lugar onde a produção no mar perde horas e chegar à unidade e ao poço que pedem atenção. Dali, um clique leva à sala de alarmes.</p></div>
+          <div class="para-que-serve"><p class="rotulo-menor">Para que serve</p><p>Ver num só lugar onde a produção no mar está abaixo do normal e chegar à unidade e ao poço que pedem atenção. Dali, um clique leva à sala de alarmes.</p></div>
           <p class="descricao">${it.length} instalações no mar, de ${lat(tudo[0].lat)} a ${lat(tudo[tudo.length - 1].lat)}. Cada círculo é uma instalação; ao aproximar, vira uma coluna 3D com altura igual ao petróleo por dia. Clique ou toque para abrir a ficha.</p>
           <p class="rotulo-menor">Petróleo por dia, por trecho do litoral</p>
-          <ol class="barras-lat">${porGrupo.map((g) => `<li data-dica="${g.t}: ${n0(g.v)} bbl/d"><span>${g.t}</span><span class="b"><i style="width:${Math.max(1, (g.v / max) * 100)}%"></i></span><b>${g.v < 10000 ? n1(g.v / 1000) : n0(g.v / 1000)}<small> mil bbl</small></b></li>`).join('')}</ol>
+          <ol class="barras-lat">${porGrupo.map((g) => `<li data-dica="${g.t}" data-dica-sub="${n0(g.v)} bbl/d de petróleo"><span>${g.t}</span><span class="b"><i style="width:${Math.max(1, (g.v / max) * 100)}%"></i></span><b>${g.v < 10000 ? n1(g.v / 1000) : n0(g.v / 1000)}<small> mil bbl</small></b></li>`).join('')}</ol>
           <p class="dica">Role em qualquer lugar da tela, ou use ↓, para descer o litoral</p></section>`;
       }
       if (c.tipo === 'numeros') {
         const [ano, mes] = f.periodo.split('-');
         return `<section class="passo" data-k="${k}">${cab}<h3>O mês na frota</h3>
-          <p class="descricao">${mes}/${ano}: último mês com produção por poço publicada nos dados abertos da ANP.</p>
+          <p class="descricao">${mes}/${ano}: último mês publicado pela ANP. O normal de cada poço e de cada unidade é a própria média diária de ${f.referencia}.</p>
           ${kpis(f)}</section>`;
       }
       if (c.tipo === 'fim') {
         return `<section class="passo" data-k="${k}">${cab}<h3>A frota inteira, num só olhar</h3>
           <p class="descricao">Gire, incline e aproxime o globo à vontade. Clique ou toque numa instalação para abrir a ficha. Em amarelo, as que têm replay na sala de alarmes.</p>
           <div class="legenda"><span><i class="leg-ponto"></i> instalação</span><span><i class="leg-ponto demo"></i> com replay de demonstração</span><span><i class="leg-coluna"></i> altura da coluna = petróleo por dia</span></div>
-          <p class="rotulo-menor">Mais horas paradas · unidades acima de 2 mil bbl/d</p>
-          <ol class="barras-inst ranking-fim">${ranking(f).map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span>${i.instalacao}</span><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.round(i.disponibilidade * 100)}%"></i></span><b>${pct(i.disponibilidade)}</b></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${pct(i.disponibilidade)} do mês produzindo · ${i.pocos_com_parada} de ${i.pocos} poços com parada"`)).join('')}</ol>
-          <p class="descricao">Barra = fração do mês produzindo.</p></section>`;
+          <p class="rotulo-menor">Mais abaixo do normal · unidades acima de 2 mil bbl/d</p>
+          <ol class="barras-inst ranking-fim">${ranking(f).map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span>${i.instalacao}</span><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.round(Math.min(1, i.disponibilidade) * 100)}%"></i></span><b>${pct(i.disponibilidade)}</b></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${i.instalacao}" data-dica-sub="${pct(i.disponibilidade)} do normal · ${i.pocos_com_parada} de ${i.pocos} poços abaixo do normal"`)).join('')}</ol>
+          <p class="descricao">Barra = produção do mês em relação à média do ano (cheia = 100%).</p></section>`;
       }
       const mostra = c.lista.length > 8 ? [...c.lista].sort((a, b) => b.oleo_bbl_d - a.oleo_bbl_d).slice(0, 8).sort((a, b) => b.lat - a.lat) : c.lista;
       const max = Math.max(...mostra.map((i) => i.oleo_bbl_d));
@@ -204,10 +215,10 @@
           <div><p class="passo-valor">${c.lista.length}<small>${c.lista.length === 1 ? 'instalação' : 'instalações'}</small></p><p class="descricao">${n0(pocos)} poços produtores</p></div>
         </div>
         ${empilhada([{ v: oleo, cls: 'forte', rot: `${c.titulo}` }, { v: oleoTot - oleo, cls: 'fraco', rot: 'resto do mar' }], false)}
-        <p class="rotulo-menor">Petróleo por instalação, mil bbl/d${c.lista.length > mostra.length ? ` · as ${mostra.length} maiores de ${c.lista.length}` : ''} · <span class="leg-critico">vermelho</span> = menos de 50% do mês produzindo</p>
-        <ol class="barras-inst">${mostra.map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span>${i.instalacao}</span><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.max(2, (i.oleo_bbl_d / max) * 100)}%"></i></span><b>${n1(i.oleo_bbl_d / 1000)}</b></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${n0(i.oleo_bbl_d)} bbl/d · ${pct(i.disponibilidade)} do mês produzindo · ${i.pocos_com_parada} de ${i.pocos} poços com parada"`)).join('')}</ol>
-        <p class="rotulo-menor">Poços com parada no mês · ${parados} de ${pocos}</p>${pontos(pocos, parados)}
-        <p class="descricao">Mais tempo parada: <b>${pior.instalacao}</b>, ${pct(pior.disponibilidade)} do mês produzindo.</p></section>`;
+        <p class="rotulo-menor">Petróleo por instalação, mil bbl/d${c.lista.length > mostra.length ? ` · as ${mostra.length} maiores de ${c.lista.length}` : ''} · <span class="leg-critico">vermelho</span> = abaixo de 50% do normal</p>
+        <ol class="barras-inst">${mostra.map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span>${i.instalacao}</span><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.max(2, (i.oleo_bbl_d / max) * 100)}%"></i></span><b>${n1(i.oleo_bbl_d / 1000)}</b></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${i.instalacao}" data-dica-sub="${n0(i.oleo_bbl_d)} bbl/d · ${pct(i.disponibilidade)} do normal · ${i.pocos_com_parada} de ${i.pocos} poços abaixo do normal"`)).join('')}</ol>
+        <p class="rotulo-menor">Poços abaixo do normal · ${parados} de ${pocos}</p>${pontos(pocos, parados)}
+        <p class="descricao">Mais abaixo do normal: <b>${pior.instalacao}</b>, ${pct(pior.disponibilidade)} da média do ano.</p></section>`;
     }).join('');
     document.querySelectorAll('.barras-inst button').forEach((b) => b.addEventListener('click', () => selecionar(b.dataset.nome, { voar: true })));
     // No desktop os passos rolam dentro do painel sobre o globo; no celular, a página rola.
@@ -288,7 +299,7 @@
   function raio(i) { return 3 + Math.sqrt(i.oleo_bbl_d / 1000) * 1.2; }
   // Coluna 3D por instalação: prisma de 8 lados no mar, altura proporcional ao petróleo por dia.
   const RAIO_COL = 0.028; // graus (~3 km)
-  const ALTURA_POR_BBL = 0.7; // metros de coluna por bbl/d (exagero vertical para ler de longe)
+  const ALTURA_POR_BBL = 0.42; // metros de coluna por bbl/d (exagero vertical para ler de longe)
   function prisma(lon, lat) {
     const k = 1 / Math.cos((lat * Math.PI) / 180), anel = [];
     for (let j = 0; j <= 8; j += 1) { const a = (j % 8) * (Math.PI / 4) + Math.PI / 8; anel.push([lon + Math.cos(a) * RAIO_COL * k, lat + Math.sin(a) * RAIO_COL]); }
@@ -362,20 +373,25 @@
         return melhor;
       }
       m.on('click', (e) => { const i = escolher(e.point); if (i) selecionar(i.instalacao); else fecharFicha(); });
-      // Ao passar o mouse: nome, produção e horas produzidas, sem precisar clicar.
+      // Ao passar o mouse: nome, produção e situação contra o normal, sem precisar clicar.
       m.on('mousemove', (e) => {
         const i = escolher(e.point), d = st.dica;
         // A mãozinha vai no canvas e no contêiner (o CSS do MapLibre força "grab" no contêiner).
         m.getCanvas().style.cursor = i ? 'pointer' : '';
         m.getCanvasContainer().style.cursor = i ? 'pointer' : '';
         if (!d) return;
-        if (!i) { d.classList.remove('on'); return; }
-        d.textContent = `${i.instalacao} · ${n0(i.oleo_bbl_d)} bbl/d · ${pct(i.disponibilidade)} do mês produzindo`;
-        d.classList.add('on');
-        const x = Math.min(window.innerWidth - d.offsetWidth - 8, e.originalEvent.clientX + 14);
-        d.style.transform = `translate(${x}px, ${e.originalEvent.clientY + 18}px)`;
+        if (!i) { esconderDica(); return; }
+        const disp = Math.round(i.disponibilidade * 100), barra = Math.min(100, disp);
+        mostrarDica(`<b>${i.instalacao}</b><span>${i.tipo || 'Instalação'} · ${i.bacia}</span>
+          <dl><div><dt>Petróleo</dt><dd>${n0(i.oleo_bbl_d)} <small>bbl/d</small></dd></div>
+          <div><dt>Água (BSW)</dt><dd>${i.bsw == null ? '—' : pct(i.bsw)}</dd></div>
+          <div><dt>Do normal</dt><dd>${disp}%</dd></div>
+          <div><dt>Poços abaixo</dt><dd>${i.pocos_com_parada} <small>de ${i.pocos}</small></dd></div></dl>
+          <i class="dica-medidor"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${barra}%"></i></i>
+          <em>Clique para abrir a ficha</em>`);
+        posicionarDica(e.originalEvent.clientX, e.originalEvent.clientY);
       });
-      m.getCanvas().addEventListener('mouseleave', () => st.dica && st.dica.classList.remove('on'));
+      m.getCanvas().addEventListener('mouseleave', esconderDica);
       st.pronto = true;
       const k = st.cap; st.cap = -1; ativar(Math.max(0, k));
     });
@@ -401,15 +417,16 @@
     ficha.innerHTML = `
       <button class="fechar" type="button" aria-label="Fechar ficha">×</button>
       <div><p class="rotulo">${i.tipo || 'Instalação'} · ${i.bacia}</p><h2>${i.instalacao}</h2>
-        <p class="descricao">${i.operador} · ${campos}${i.lamina_m ? ` · lâmina d'água ~${n0(i.lamina_m)} m` : ''}</p></div>
+        <p class="descricao">${i.operador} · ${campos}${i.lamina_m ? ` · lâmina d'água ${n0(i.lamina_m)} m` : ''}${i.inicio ? ` · desde ${i.inicio}` : ''}</p></div>
       <dl class="numeros">
         <div><dt>Petróleo</dt><dd>${n0(i.oleo_bbl_d)} <small>bbl/d</small></dd></div>
         <div><dt>Gás</dt><dd>${n0(i.gas_mil_m3_d)} <small>mil m³/d</small></dd></div>
       </dl>
       <div><p class="rotulo-menor">O que sai dos poços · BSW ${i.bsw == null ? '—' : pct(i.bsw)}</p>${empilhada([{ v: i.oleo_bbl_d, cls: 'forte', rot: 'petróleo' }, { v: i.agua_bbl_d, cls: 'agua', rot: 'água' }])}</div>
-      <div><p class="rotulo-menor">Horas produzidas no mês · ${pct(i.disponibilidade)}</p>${medidor(i.disponibilidade)}</div>
-      <div><p class="rotulo-menor">${i.pocos} ${i.pocos === 1 ? 'poço' : 'poços'} · ${i.pocos_com_parada} com parada</p>${pontos(i.pocos, i.pocos_com_parada)}</div>
-      ${i.pior_poco ? `<p class="descricao">Mais tempo parado: <b>${i.pior_poco.poco}</b>, ${n0(i.pior_poco.horas)} h no mês</p>` : ''}
+      <div><p class="rotulo-menor">Produção contra o normal · ${pct(i.disponibilidade)}</p>${medidor(i.disponibilidade)}</div>
+      ${i.capacidade_bbl_d ? `<div><p class="rotulo-menor">Uso da capacidade · ${pct(i.oleo_bbl_d / i.capacidade_bbl_d)} de ${n0(i.capacidade_bbl_d)} bbl/d</p>${empilhada([{ v: Math.min(i.oleo_bbl_d, i.capacidade_bbl_d), cls: 'forte', rot: 'produzindo' }, { v: Math.max(0, i.capacidade_bbl_d - i.oleo_bbl_d), cls: 'fraco', rot: 'capacidade livre' }], false)}</div>` : ''}
+      <div><p class="rotulo-menor">${i.pocos} ${i.pocos === 1 ? 'poço' : 'poços'} · ${i.pocos_com_parada} abaixo do normal</p>${pontos(i.pocos, i.pocos_com_parada)}</div>
+      ${i.pior_poco ? `<p class="descricao">Poço mais abaixo do normal: <b>${i.pior_poco.poco}</b>, ${pct(i.pior_poco.razao)} da própria média</p>` : ''}
       ${demo ? `<div class="demo">
         <p class="rotulo">Replay de demonstração</p>
         <p>${demo.casos.length} ${demo.casos.length === 1 ? 'caso' : 'casos'} do poço ${demo.poco.replace('WELL-', '')} do 3W, com ${demo.alertas} ${demo.alertas === 1 ? 'alerta' : 'alertas'}</p>
@@ -419,7 +436,7 @@
     ficha.scrollTop = 0;
     [...ficha.children].forEach((c, k) => c.style.setProperty('--i', k));
     anima(ficha, 'cascata');
-    ficha.querySelector('.fechar').addEventListener('click', fecharFicha);
+    ficha.querySelector('.fechar').addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); fecharFicha(); });
     if (demo) $('#abrir-demo').addEventListener('click', () => {
       const caso = demo.casos.find((c) => c.alertas) || demo.casos[0];
       location.hash = 'alarmes';
