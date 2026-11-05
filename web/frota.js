@@ -65,7 +65,7 @@
 
   // Dica ao passar o mouse em qualquer infográfico ([data-dica]); nos pontos, destaca o grupo inteiro.
   function dicas() {
-    const d = document.createElement('div'); d.className = 'dica-flutuante'; d.setAttribute('role', 'tooltip'); document.body.appendChild(d);
+    const d = document.createElement('div'); d.className = 'dica-flutuante'; d.setAttribute('aria-hidden', 'true'); document.body.appendChild(d);
     st.dica = d;
     let alvo = null;
     document.addEventListener('mouseover', (e) => {

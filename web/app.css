@@ -506,3 +506,19 @@ a.marca-nome:hover { color: var(--color-primary); }
 .alerta.aguardando h3 { max-width: none; }
 #b-mudar { margin-left: auto; }
 @media (max-width: 860px) { #b-mudar { margin-left: 0; height: 44px; justify-content: center; } }
+/* Alvos de toque de 24 px nos pontos dos capítulos (acessibilidade). */
+@media (max-width: 860px) {
+  .pontos-passo { gap: 0; }
+  .pontos-passo button { width: 24px; height: 24px; }
+}
+
+/* Barras com pontas arredondadas (trilho e preenchimento). */
+.barras-lat .b, .barras-inst .b, .ranking .medida, .prob .barra-prob, .medidor, .contador-barra, .dica-medidor, .empilhada-barra { border-radius: 999px; overflow: hidden; }
+.barras-lat .b i, .barras-inst .b i, .ranking .medida i, .prob .barra-prob i, .medidor i, .contador-barra i, .dica-medidor i { border-radius: 999px; }
+.empilhada-barra i:first-child { border-radius: 999px 0 0 999px; }
+.empilhada-barra i:last-child { border-radius: 0 999px 999px 0; }
+.empilhada-barra i:only-child { border-radius: 999px; }
+.barras-lat .b, .barras-inst .b { background: var(--color-rule); }
+.medidor { overflow: visible; }
+.medidor i { border-radius: 999px; }
+.medidor span { border-radius: 2px; }

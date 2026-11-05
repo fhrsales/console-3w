@@ -43,7 +43,10 @@ async function iniciar() {
   st.idx = await json('data/index.json');
   // Com o servidor local, o retorno vai para feedback.jsonl; publicado como site estático (GitHub Pages),
   // fica guardado no próprio navegador.
-  try { st.feedback = await json('api/feedback'); st.local = false; } catch { st.local = true; st.feedback = lerLocal(); }
+  // A API de retorno só existe no servidor local (server.py); no site estático nem tenta, para não gerar erro 404.
+  const servidorLocal = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+  st.local = true; st.feedback = lerLocal();
+  if (servidorLocal) { try { st.feedback = await json('api/feedback'); st.local = false; } catch { /* segue no navegador */ } }
   const ol = $('#instancias');
   // Mais recentes primeiro: os casos de 2020 a 2023 abrem a lista.
   st.idx.instancias.sort((a, b) => b.inicio.localeCompare(a.inicio));
