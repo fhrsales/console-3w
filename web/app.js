@@ -98,6 +98,8 @@ async function abrir(id) {
   const c = $('#cursor'); c.max = st.dado.score.length - 1; c.disabled = false; $('#play').disabled = false;
   montar();
   desenhar(true);
+  // O rodapé só aparece com a sala montada: antes ele subiria e depois seria empurrado (CLS).
+  $('#rodape').hidden = false;
   // Troca de poço é troca de estado: os sinais novos assentam no lugar (360 ms).
   if (antes >= 0 && antes !== ordem) anima($('#graficos'), 'troca');
 }

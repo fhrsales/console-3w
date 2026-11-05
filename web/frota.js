@@ -60,6 +60,7 @@
     // Troca de tela: título e conteúdo assentam de baixo para cima; as réguas das seções se desenham da esquerda.
     if (antes != null) { anima($(`#tela-${nome}`), 'assenta'); anima($('.cabecalho-pagina'), 'assenta'); }
     // O globo nasce com a aba escondida; ao abrir a Frota, ajusta o tamanho e enquadra o capítulo atual.
+    if (nome === 'frota') abrirGlobo();
     if (nome === 'frota' && st.mapa) setTimeout(() => { st.mapa.resize(); if (st.pronto && st.caps[st.cap]) enquadrar(st.caps[st.cap]); }, 0);
   }
 
@@ -116,7 +117,18 @@
     document.querySelectorAll('[data-referencia]').forEach((el) => { el.textContent = frota.referencia || ''; });
     associarDemo(frota.instalacoes, idx.instancias);
     capitulos(frota);
-    globo(frota);
+    if (st.aba === 'frota') abrirGlobo();
+  }
+
+  // O MapLibre (≈250 KB) só é baixado quando a Frota abre: a Sala de alarmes, tela inicial, carrega sem ele.
+  let carregando = null;
+  function abrirGlobo() {
+    if (st.mapa || carregando || !st.frota) return;
+    // Espera o CSS e o script. O CSS do MapLibre entra antes do nosso, senão o .maplibregl-map (relative) anula o .mapa (absolute).
+    const baixa = (tag, attrs) => new Promise((ok, erro) => { const el = Object.assign(document.createElement(tag), attrs); el.onload = ok; el.onerror = erro; document.head.insertBefore(el, document.head.querySelector('link[rel="stylesheet"]')); });
+    carregando = Promise.all([baixa('link', { rel: 'stylesheet', href: MAPLIBRE + 'maplibre-gl.css' }), baixa('script', { src: MAPLIBRE + 'maplibre-gl.js' })])
+      .then(() => { globo(st.frota); st.mapa.resize(); })
+      .catch(() => { carregando = null; });
   }
 
   // O 3W é anonimizado: não diz em qual unidade cada poço está. Para a demonstração, cada poço do 3W
@@ -328,6 +340,7 @@
     return { top: 60, bottom: 60, left: 460, right: st.sel ? 400 : 80 };
   }
   function enquadrar(c) {
+    if (!st.mapa) return;
     if (c.tipo === 'abertura' || c.tipo === 'numeros') return mover({ center: [-42, -16], zoom: largo() ? 2.9 : 2.2, pitch: 0, bearing: 0 });
     const b = new maplibregl.LngLatBounds();
     c.lista.forEach((i) => b.extend([i.lon, i.lat]));
@@ -367,6 +380,7 @@
 
   // Cor do mar na base Esri: enquanto um ladrilho carrega durante o voo, aparece o mar, não uma faixa preta.
   const MAR = '#222327';
+  const MAPLIBRE = 'https://unpkg.com/maplibre-gl@5.6.0/dist/';
 
   function globo(f) {
     const geo = { type: 'FeatureCollection', features: f.instalacoes.map((i) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [i.lon, i.lat] }, properties: { instalacao: i.instalacao, r: raio(i), demo: st.demo.has(i.instalacao) } })) };

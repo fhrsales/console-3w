@@ -18,7 +18,7 @@
   --t-estado: 360ms;
   --t-entrada: 600ms;
   --tinta-70: color-mix(in srgb, var(--color-dark) 70%, transparent);
-  --tinta-45: color-mix(in srgb, var(--color-dark) 45%, transparent);
+  --tinta-45: color-mix(in srgb, var(--color-dark) 54%, transparent);
   --tinta-08: color-mix(in srgb, var(--color-dark) 8%, transparent);
   --acento-15: color-mix(in srgb, var(--alerta) 15%, transparent);
 }
@@ -280,6 +280,7 @@ body.com-gabarito .graficos .rot { opacity: 1; }
 
 /* Rodapé */
 .rodape { width: calc(100% - var(--grid) * 4); max-width: 1280px; margin: calc(var(--grid) * 11) auto calc(var(--grid) * 6); padding-top: calc(var(--grid) * 3); border-top: 2px solid var(--color-dark); display: grid; gap: 8px; }
+.rodape[hidden] { display: none; }
 .placar { font-family: var(--font-display); font-weight: 500; font-size: calc(var(--grid) * 2.4); }
 .placar .num { display: inline-block; }
 .rodape .descricao { max-width: 760px; }
