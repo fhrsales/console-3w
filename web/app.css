@@ -123,10 +123,13 @@ body.modo-frota .pagina { width: 100%; max-width: none; padding: 0; }
 .barras-lat li, .barras-inst button { display: grid; grid-template-columns: 130px minmax(0, 1fr) 70px; gap: 10px; align-items: center; font-size: calc(var(--grid) * 1.55); }
 .barras-lat li { padding: 6px 0; border-bottom: 1px solid var(--color-rule); }
 .barras-inst li + li { border-top: 1px solid var(--color-rule); }
-.barras-inst button { width: 100%; background: none; border: 0; padding: 5px 0; text-align: left; cursor: pointer; grid-template-columns: 150px minmax(0, 1fr) 40px; }
-.barras-inst button span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color var(--t-cor) var(--ease); }
+.barras-inst button { width: 100%; background: none; border: 0; padding: 3px 0 5px; text-align: left; cursor: pointer; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: baseline; }
+/* Nome inteiro na primeira linha, valor à direita, barra fina embaixo ocupando a largura toda. */
+.barras-inst .b { grid-column: 1 / -1; height: 4px; }
+.barras-inst b { line-height: 1.15; }
+.barras-inst button span:first-child { line-height: 1.15; transition: color var(--t-cor) var(--ease); }
 .barras-inst button:hover span:first-child, .barras-inst button[aria-current="true"] span:first-child { color: var(--color-primary); }
-.barras-lat .b, .barras-inst .b { height: 8px; }
+.barras-lat .b { height: 8px; }
 .barras-lat .b i, .barras-inst .b i { display: block; height: 100%; background: var(--pb-verde-claro); transform-origin: left center; transform: scaleX(0); transition: transform var(--t-entrada) var(--ease); }
 .barras-inst .b i { background: var(--pb-verde-claro); }
 .barras-inst .b i.critico { background: var(--alerta); }
@@ -312,7 +315,7 @@ body.com-gabarito .graficos .rot { opacity: 1; }
   .kpi { padding: calc(var(--grid) * 1.6) calc(var(--grid) * 1.4); min-width: 0; }
   .kpi:nth-child(odd) { padding-left: 0; }
   .kpi-valor { font-size: calc(var(--grid) * 4); }
-  .barras-inst button { grid-template-columns: 120px minmax(0, 1fr) 40px; }
+
 }
 /* Seletor: seta própria com folga até a borda da pílula (a seta nativa ficava colada no fim). */
 select { appearance: none; -webkit-appearance: none; padding-right: 40px !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%23f1f1f4' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; background-size: 11px 8px; cursor: pointer; }

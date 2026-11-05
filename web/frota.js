@@ -227,7 +227,7 @@
           <p class="descricao">Gire, incline e aproxime o globo à vontade. Clique ou toque numa instalação para abrir a ficha. Em amarelo, as que têm replay na sala de alarmes.</p>
           <div class="legenda det"><span><i class="leg-ponto"></i> instalação</span><span><i class="leg-ponto demo"></i> com replay de demonstração</span><span><i class="leg-coluna"></i> altura da coluna = petróleo por dia</span></div>
           <p class="rotulo-menor det">Mais abaixo do normal · unidades acima de 2 mil bbl/d</p>
-          <ol class="barras-inst ranking-fim det">${ranking(f).map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span>${i.instalacao}</span><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.round(Math.min(1, i.disponibilidade) * 100)}%"></i></span><b>${pct(i.disponibilidade)}</b></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${i.instalacao}" data-dica-sub="${pct(i.disponibilidade)} do normal · ${i.pocos_com_parada} de ${i.pocos} poços abaixo do normal"`)).join('')}</ol>
+          <ol class="barras-inst ranking-fim det">${ranking(f).map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span class="nome-inst">${nome(i.instalacao)}</span><b>${pct(i.disponibilidade)}</b><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.round(Math.min(1, i.disponibilidade) * 100)}%"></i></span></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${nome(i.instalacao)}" data-dica-sub="${pct(i.disponibilidade)} do normal · ${i.pocos_com_parada} de ${i.pocos} poços abaixo do normal"`)).join('')}</ol>
           <p class="descricao det">Barra = produção do mês em relação à média dos 8 meses anteriores (cheia = 100%).</p>${EXPANDIR}</section>`;
       }
       const mostra = c.lista.length > 8 ? [...c.lista].sort((a, b) => b.oleo_bbl_d - a.oleo_bbl_d).slice(0, 8).sort((a, b) => b.lat - a.lat) : c.lista;
@@ -240,9 +240,9 @@
         </div>
         <div class="det">${empilhada([{ v: oleo, cls: 'forte', rot: `${c.titulo}` }, { v: oleoTot - oleo, cls: 'fraco', rot: 'resto do mar' }], false)}</div>
         <p class="rotulo-menor det">Petróleo por instalação, mil bbl/d${c.lista.length > mostra.length ? ` · as ${mostra.length} maiores de ${c.lista.length}` : ''} · <span class="leg-critico">vermelho</span> = abaixo de 50% do normal</p>
-        <ol class="barras-inst det">${mostra.map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span>${i.instalacao}</span><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.max(2, (i.oleo_bbl_d / max) * 100)}%"></i></span><b>${n1(i.oleo_bbl_d / 1000)}</b></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${i.instalacao}" data-dica-sub="${n0(i.oleo_bbl_d)} bbl/d · ${pct(i.disponibilidade)} do normal · ${i.pocos_com_parada} de ${i.pocos} poços abaixo do normal"`)).join('')}</ol>
+        <ol class="barras-inst det">${mostra.map((i) => `<li><button type="button" data-nome="${i.instalacao}"><span class="nome-inst">${nome(i.instalacao)}</span><b>${n1(i.oleo_bbl_d / 1000)}</b><span class="b"><i class="${i.disponibilidade < 0.5 ? 'critico' : ''}" style="width:${Math.max(2, (i.oleo_bbl_d / max) * 100)}%"></i></span></button></li>`.replace('<button type="button"', `<button type="button" data-dica="${nome(i.instalacao)}" data-dica-sub="${n0(i.oleo_bbl_d)} bbl/d · ${pct(i.disponibilidade)} do normal · ${i.pocos_com_parada} de ${i.pocos} poços abaixo do normal"`)).join('')}</ol>
         <p class="rotulo-menor det">Poços abaixo do normal · ${parados} de ${pocos}</p><div class="det">${pontos(pocos, parados)}</div>
-        <p class="descricao">Mais abaixo do normal: <b>${pior.instalacao}</b>, ${pct(pior.disponibilidade)} da média dos 8 meses anteriores.</p>${EXPANDIR}</section>`;
+        <p class="descricao">Mais abaixo do normal: <b>${nome(pior.instalacao)}</b>, ${pct(pior.disponibilidade)} da média dos 8 meses anteriores.</p>${EXPANDIR}</section>`;
     }).join('');
     document.querySelectorAll('.barras-inst button').forEach((b) => b.addEventListener('click', () => selecionar(b.dataset.nome, { voar: true })));
     // Desktop: os passos rolam dentro do painel e o capítulo do meio fica ativo.
@@ -378,6 +378,17 @@
   // O mesmo estado (selecionada, fora do capítulo) vale para o ponto e para a coluna.
   function estado(nome, obj) { ['inst', 'col'].forEach((source) => st.mapa.setFeatureState({ source, id: nome }, obj)); }
 
+  // A ANP mistura caixa alta e baixa nos nomes ("FPSO ALMIRANTE BARROSO", "FPSO Guanabara"): exibe tudo em caixa normal.
+  const SIGLAS = new Set(['FPSO', 'CCG', 'TLP']);
+  const MINUSC = new Set(['de', 'do', 'da', 'dos', 'das', 'e']);
+  function nome(n) {
+    return String(n).split(' ').map((w, k) => {
+      if (SIGLAS.has(w) || /\d/.test(w) || w !== w.toUpperCase() || w.length < 2) return w;
+      const l = w.toLocaleLowerCase('pt-BR');
+      return k > 0 && MINUSC.has(l) ? l : l.charAt(0).toLocaleUpperCase('pt-BR') + l.slice(1);
+    }).join(' ');
+  }
+
   // Cor do mar na base Esri: enquanto um ladrilho carrega durante o voo, aparece o mar, não uma faixa preta.
   const MAR = '#222327';
   const MAPLIBRE = 'https://unpkg.com/maplibre-gl@5.6.0/dist/';
@@ -453,7 +464,7 @@
         if (!d) return;
         if (!i) { esconderDica(); return; }
         const disp = Math.round(i.disponibilidade * 100), barra = Math.min(100, disp);
-        mostrarDica(`<b>${i.instalacao}</b><span>${i.tipo || 'Instalação'} · ${i.bacia}</span>
+        mostrarDica(`<b>${nome(i.instalacao)}</b><span>${i.tipo || 'Instalação'} · ${i.bacia}</span>
           <dl><div><dt>Petróleo</dt><dd>${n0(i.oleo_bbl_d)} <small>bbl/d</small></dd></div>
           <div><dt>Água (BSW)</dt><dd>${i.bsw == null ? '—' : pct(i.bsw)}</dd></div>
           <div><dt>Do normal</dt><dd>${disp}%</dd></div>
@@ -491,7 +502,7 @@
     const ficha = $('#ficha');
     ficha.innerHTML = `
       <button class="fechar" type="button" aria-label="Fechar ficha">×</button>
-      <div><p class="rotulo">${i.tipo || 'Instalação'} · ${i.bacia}</p><h2>${i.instalacao}</h2>
+      <div><p class="rotulo">${i.tipo || 'Instalação'} · ${i.bacia}</p><h2>${nome(i.instalacao)}</h2>
         <p class="descricao">${i.operador} · ${campos}${i.lamina_m ? ` · lâmina d'água ${n0(i.lamina_m)} m` : ''}${i.inicio ? ` · desde ${i.inicio}` : ''}</p></div>
       <dl class="numeros">
         <div><dt>Petróleo</dt><dd>${n0(i.oleo_bbl_d)} <small>bbl/d</small></dd></div>
