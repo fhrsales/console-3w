@@ -390,3 +390,5 @@ select option { background: var(--color-tertiary); color: var(--color-dark); }
 .barras-lat li { transition: opacity var(--t-cor) var(--ease); }
 .barras-lat:hover li:not(:hover) { opacity: .45; }
 .barras-inst:hover li:not(:hover) { opacity: .5; transition: opacity var(--t-cor) var(--ease); }
+.palco, .mapa { background: #222327; }
+.maplibregl-canvas-container.maplibregl-interactive { cursor: grab; }

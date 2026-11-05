@@ -297,6 +297,9 @@
   // O mesmo estado (selecionada, fora do capítulo) vale para o ponto e para a coluna.
   function estado(nome, obj) { ['inst', 'col'].forEach((source) => st.mapa.setFeatureState({ source, id: nome }, obj)); }
 
+  // Cor do mar na base Esri: enquanto um ladrilho carrega durante o voo, aparece o mar, não uma faixa preta.
+  const MAR = '#222327';
+
   function globo(f) {
     const geo = { type: 'FeatureCollection', features: f.instalacoes.map((i) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [i.lon, i.lat] }, properties: { instalacao: i.instalacao, r: raio(i), demo: st.demo.has(i.instalacao) } })) };
     const cols = { type: 'FeatureCollection', features: f.instalacoes.map((i) => ({ type: 'Feature', geometry: prisma(i.lon, i.lat), properties: { instalacao: i.instalacao, h: Math.max(6000, i.oleo_bbl_d * ALTURA_POR_BBL), demo: st.demo.has(i.instalacao) } })) };
@@ -311,7 +314,7 @@
           // Nomes de países, estados e cidades e as divisas, por cima da base.
           rotulos: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 16 },
         },
-        layers: [{ id: 'fundo', type: 'background', paint: { 'background-color': papel } }, { id: 'base', type: 'raster', source: 'base' }, { id: 'rotulos', type: 'raster', source: 'rotulos', paint: { 'raster-opacity': 0.95 } }],
+        layers: [{ id: 'fundo', type: 'background', paint: { 'background-color': MAR } }, { id: 'base', type: 'raster', source: 'base' }, { id: 'rotulos', type: 'raster', source: 'rotulos', paint: { 'raster-opacity': 0.95 } }],
       },
       center: [-42, -16], zoom: largo() ? 2.9 : 2.2, attributionControl: { compact: true }, scrollZoom: true,
     });
@@ -362,7 +365,9 @@
       // Ao passar o mouse: nome, produção e horas produzidas, sem precisar clicar.
       m.on('mousemove', (e) => {
         const i = escolher(e.point), d = st.dica;
+        // A mãozinha vai no canvas e no contêiner (o CSS do MapLibre força "grab" no contêiner).
         m.getCanvas().style.cursor = i ? 'pointer' : '';
+        m.getCanvasContainer().style.cursor = i ? 'pointer' : '';
         if (!d) return;
         if (!i) { d.classList.remove('on'); return; }
         d.textContent = `${i.instalacao} · ${n0(i.oleo_bbl_d)} bbl/d · ${pct(i.disponibilidade)} do mês produzindo`;
