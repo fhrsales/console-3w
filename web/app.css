@@ -474,3 +474,27 @@ select option { background: var(--color-tertiary); color: var(--color-dark); }
 .aviso-poc p + p { margin-top: 6px; }
 .simulacao { flex-basis: 100%; order: 11; font-size: calc(var(--grid) * 1.5); color: var(--tinta-70); }
 @media (max-width: 860px) { .aviso-poc { grid-template-columns: 1fr; } }
+
+/* Celular: botões da sala de alarmes com a mesma altura (44 px, bom para o dedo) e larguras alinhadas. */
+@media (max-width: 860px) {
+  .painel .cabeca { align-items: stretch; }
+  .controles { display: grid; grid-template-columns: 1fr auto; gap: 10px; width: 100%; }
+  #play { height: 44px; justify-content: center; }
+  .velocidade { height: 44px; align-items: stretch; border: 1px solid var(--color-rule); border-radius: 999px; padding: 0 4px; }
+  .velocidade button { min-width: 44px; padding: 0 8px; }
+  .velocidade-traco { bottom: 6px; }
+  .relogio { grid-column: 1 / -1; text-align: left; min-width: 0; font-size: 22px; }
+  #restante { font-size: 13px; white-space: nowrap; }
+
+  .decisao { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .decisao > * { grid-column: 1 / -1; }
+  .decisao select { order: -1; width: 100%; height: 44px; }
+  .decisao #b-conf, .decisao #b-falso { grid-column: auto; width: 100%; height: 44px; justify-content: center; }
+  .decisao input { height: 44px; }
+}
+
+/* Interface de aplicativo: sem seleção de texto e sem zoom por duplo toque.
+   O pinça com dois dedos continua funcionando (acessibilidade para quem enxerga pouco). */
+html, body { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea, select { -webkit-user-select: text; user-select: text; }

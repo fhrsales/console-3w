@@ -22,7 +22,17 @@ function anima(el, cls) {
 }
 
 const st = { idx: null, dado: null, ordem: -1, pos: 0, tocando: false, timer: null, mostrado: null, feedback: [], vel: 120 };
-const W = 760, ROW = 46, PAD_L = 170, PAD_R = 70;
+// Geometria do gráfico. No desktop: 760 de largura com os nomes numa coluna à esquerda.
+// No celular: largura real da tela (texto em tamanho real), nome em cima de cada linha e valor à direita.
+let W = 760, ROW = 46, PAD_L = 170, PAD_R = 70, TOPO = 8, ESTREITO = false;
+function geometria() {
+  const larg = Math.round($('#graficos').clientWidth || 760);
+  ESTREITO = larg < 600;
+  if (ESTREITO) { W = larg; ROW = 58; PAD_L = 0; PAD_R = 0; TOPO = 22; } else { W = 760; ROW = 46; PAD_L = 170; PAD_R = 70; TOPO = 8; }
+}
+const rotY = (y0) => (ESTREITO ? y0 + 15 : y0 + ROW / 2 + 4);
+const valX = () => (ESTREITO ? W : W - PAD_R + 8);
+const valAnc = () => (ESTREITO ? ' text-anchor="end"' : '');
 
 function lerLocal() { try { return JSON.parse(localStorage.getItem('console3w-feedback') || '[]'); } catch { return []; } }
 function gravarLocal(lista) { try { localStorage.setItem('console3w-feedback', JSON.stringify(lista)); } catch {} }
@@ -57,7 +67,12 @@ async function iniciar() {
   }));
   // Traço sob a velocidade escolhida: desliza como o do menu; na primeira pintura, sem animação.
   tracoVelocidade(true);
-  window.addEventListener('resize', () => tracoVelocidade(true));
+  window.addEventListener('resize', () => {
+    tracoVelocidade(true);
+    // Redesenha o gráfico na largura nova (girar o celular, redimensionar a janela).
+    clearTimeout(st.redim);
+    st.redim = setTimeout(() => { if (st.dado && !$('#tela-alarmes').hidden) { montar(); desenhar(true); } }, 150);
+  });
   window.addEventListener('hashchange', () => setTimeout(() => tracoVelocidade(true), 0));
   placar(false);
   if (!st.dado) { const primeiro = st.idx.instancias.find((i) => i.alertas && i.inicio >= '2023') || st.idx.instancias.find((i) => i.alertas) || st.idx.instancias[0]; abrir(primeiro.id); }
@@ -93,13 +108,14 @@ function caminho(arr, a, b, sc, y0) {
   for (let i = a; i < b; i += 1) {
     const x = arr[i]; if (x == null) continue;
     const px = PAD_L + (i / (n - 1)) * (W - PAD_L - PAD_R);
-    const py = y0 + ROW - 8 - ((x - sc.lo) / (sc.hi - sc.lo)) * (ROW - 16);
+    const py = y0 + ROW - 6 - ((x - sc.lo) / (sc.hi - sc.lo)) * (ROW - 6 - TOPO);
     d += (d ? 'L' : 'M') + px.toFixed(1) + ' ' + py.toFixed(1);
   }
   return d;
 }
 
 function montar() {
+  geometria();
   const d = st.dado, vars = d.variaveis, n = d.score.length;
   const H = (vars.length + 1) * ROW + 10;
   const xOf = (i) => PAD_L + (i / (n - 1)) * (W - PAD_L - PAD_R);
@@ -113,20 +129,20 @@ function montar() {
   vars.forEach((v, k) => {
     const y0 = k * ROW;
     linhas += `<line class="regua" x1="0" x2="${W}" y1="${y0 + ROW}" y2="${y0 + ROW}"/>
-      <text class="nome-var" x="0" y="${y0 + ROW / 2 + 4}">${v.nome}</text>
+      <text class="nome-var" x="0" y="${rotY(y0)}">${v.nome}</text>
       <path class="linha futuro" data-v="${v.var}" data-f="1"/><path class="linha" data-v="${v.var}"/>
-      <text class="valor" data-val="${v.var}" x="${W - PAD_R + 8}" y="${y0 + ROW / 2 + 4}"></text>`;
+      <text class="valor" data-val="${v.var}" x="${valX()}" y="${rotY(y0)}"${valAnc()}></text>`;
   });
   const ys = vars.length * ROW;
   const max = Math.max(d.limiar * 2, ...d.score.filter((x) => x != null));
-  const yS = (s) => ys + ROW - 6 - (Math.min(s, max) / max) * (ROW - 12);
+  const yS = (s) => ys + ROW - 6 - (Math.min(s, max) / max) * (ROW - 6 - TOPO);
   const marcas = d.alertas.map((a, j) => `<circle class="marca" data-a="${j}" cx="${xOf(a.i - 1)}" cy="${yS(a.score)}" r="5"/>`).join('');
   $('#graficos').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Sinais do poço e índice de anomalia">
     ${rot}${linhas}
-    <text class="nome-var nome-score" x="0" y="${ys + ROW / 2 + 4}">Índice de anomalia</text>
+    <text class="nome-var nome-score" x="0" y="${rotY(ys)}">Índice de anomalia</text>
     <line class="limiar" x1="${PAD_L}" x2="${W - PAD_R}" y1="${yS(d.limiar)}" y2="${yS(d.limiar)}"/>
     <path class="score" id="p-score"/>${marcas}
-    <text class="valor" id="v-score" x="${W - PAD_R + 8}" y="${ys + ROW / 2 + 4}"></text>
+    <text class="valor" id="v-score" x="${valX()}" y="${rotY(ys)}"${valAnc()}></text>
     <line class="cursor" id="cur" y1="0" y2="${H - 10}"/></svg>`;
   st.geo = { xOf, yS, ys, H };
 }
