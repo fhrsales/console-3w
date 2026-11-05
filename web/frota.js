@@ -97,6 +97,8 @@
   async function iniciar() {
     dicas();
     window.addEventListener('hashchange', () => aba(location.hash.slice(1)));
+    // O nome "Console 3W" leva à Frota; se já estiver nela, volta ao primeiro capítulo.
+    $('.marca-nome').addEventListener('click', () => { if (st.aba === 'frota' && st.caps.length) irPara(0); });
     // Altura real do masthead, para o globo ocupar exatamente o resto do viewport.
     const barra = () => document.documentElement.style.setProperty('--altura-barra', `${$('.barra').offsetHeight}px`);
     barra();

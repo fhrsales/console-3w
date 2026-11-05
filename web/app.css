@@ -498,3 +498,5 @@ select option { background: var(--color-tertiary); color: var(--color-dark); }
 html, body { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 input, textarea, select { -webkit-user-select: text; user-select: text; }
+a.marca-nome { color: inherit; text-decoration: none; transition: color var(--t-cor) var(--ease); }
+a.marca-nome:hover { color: var(--color-primary); }
