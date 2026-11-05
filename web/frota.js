@@ -46,7 +46,7 @@
   }
 
   function aba(nome) {
-    nome = TEXTOS[nome] ? nome : 'frota';
+    nome = TEXTOS[nome] ? nome : 'alarmes';
     const antes = st.aba;
     if (antes === nome) return;
     st.aba = nome;
@@ -59,7 +59,8 @@
     moverTraco(antes == null);
     // Troca de tela: título e conteúdo assentam de baixo para cima; as réguas das seções se desenham da esquerda.
     if (antes != null) { anima($(`#tela-${nome}`), 'assenta'); anima($('.cabecalho-pagina'), 'assenta'); }
-    if (nome === 'frota' && st.mapa) setTimeout(() => st.mapa.resize(), 0);
+    // O globo nasce com a aba escondida; ao abrir a Frota, ajusta o tamanho e enquadra o capítulo atual.
+    if (nome === 'frota' && st.mapa) setTimeout(() => { st.mapa.resize(); if (st.pronto && st.caps[st.cap]) enquadrar(st.caps[st.cap]); }, 0);
   }
 
   // Dica ao passar o mouse em qualquer infográfico ([data-dica]); nos pontos, destaca o grupo inteiro.
@@ -97,13 +98,13 @@
   async function iniciar() {
     dicas();
     window.addEventListener('hashchange', () => aba(location.hash.slice(1)));
-    // O nome "Console 3W" leva à Frota; se já estiver nela, volta ao primeiro capítulo.
-    $('.marca-nome').addEventListener('click', () => { if (st.aba === 'frota' && st.caps.length) irPara(0); });
+    // O nome "Console 3W" leva à Sala de alarmes (a tela inicial); se já estiver nela, volta ao topo.
+    $('.marca-nome').addEventListener('click', () => { if (st.aba === 'alarmes') window.scrollTo({ top: 0, behavior: calmo() ? 'auto' : 'smooth' }); });
     // Altura real do masthead, para o globo ocupar exatamente o resto do viewport.
     const barra = () => document.documentElement.style.setProperty('--altura-barra', `${$('.barra').offsetHeight}px`);
     barra();
     window.addEventListener('resize', () => { moverTraco(true); barra(); });
-    aba(location.hash.slice(1) || 'frota');
+    aba(location.hash.slice(1) || 'alarmes');
     document.fonts && document.fonts.ready.then(() => moverTraco(true));
     const [frota, idx] = await Promise.all([fetch('data/frota.json').then((r) => r.json()), fetch('data/index.json').then((r) => r.json())]);
     st.frota = frota;

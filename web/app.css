@@ -500,3 +500,9 @@ body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none
 input, textarea, select { -webkit-user-select: text; user-select: text; }
 a.marca-nome { color: inherit; text-decoration: none; transition: color var(--t-cor) var(--ease); }
 a.marca-nome:hover { color: var(--color-primary); }
+/* Espaço da decisão antes do alerta: régua neutra (o vermelho fica para quando o alerta dispara). */
+.alerta.aguardando { border-top-color: var(--color-dark); }
+.alerta.aguardando .topo-alerta { gap: 8px; }
+.alerta.aguardando h3 { max-width: none; }
+#b-mudar { margin-left: auto; }
+@media (max-width: 860px) { #b-mudar { margin-left: 0; height: 44px; justify-content: center; } }

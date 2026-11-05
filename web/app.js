@@ -85,7 +85,9 @@ async function abrir(id) {
   document.querySelectorAll('#instancias button').forEach((b) => b.setAttribute('aria-current', String(b.dataset.id === id)));
   st.dado = await json(`data/${id}.json`);
   st.ordem = ordem;
-  st.pos = Math.min(st.dado.score.length - 1, 200);
+  // Começa 10 min antes do primeiro alerta: ao apertar Reproduzir, o alerta chega logo.
+  const prim = st.dado.alertas[0];
+  st.pos = prim ? Math.max(0, prim.i - 1 - 60) : Math.min(st.dado.score.length - 1, 200);
   st.mostrado = null;
   fecharAlerta();
   $('#p-rotulo').textContent = `Replay · caso real do 3W · registro de ${st.dado.inicio.slice(0, 4)}`;
@@ -190,10 +192,23 @@ function frase(m) {
   return partes.length ? partes.join(', ') : 'variação pequena';
 }
 
-function fecharAlerta() { $('#alerta-wrap').dataset.open = 'false'; }
+// Antes do alerta, o espaço da decisão já aparece e explica o que fazer.
+function fecharAlerta() {
+  const el = $('#alerta'), d = st.dado;
+  el.classList.add('aguardando');
+  el.innerHTML = d && d.alertas.length
+    ? `<div class="topo-alerta"><span class="rotulo">Decisão do operador</span><h3>Ainda sem alerta neste trecho</h3>
+        <p class="descricao">Aperte <b>Reproduzir</b>: o replay para quando o detector alertar. Aí aparecem por que alertou, o que pode ser e os botões <b>Confirmo</b> e <b>Alarme falso</b>.</p></div>
+       <div class="decisao"><button class="botao primario" id="b-ate" type="button">Reproduzir até o alerta</button></div>`
+    : `<div class="topo-alerta"><span class="rotulo">Decisão do operador</span><h3>Este caso não gerou alerta</h3>
+        <p class="descricao">O detector viu o poço dentro do próprio normal o tempo todo. Escolha na lista um caso com alertas.</p></div>`;
+  $('#alerta-wrap').dataset.open = 'true';
+  const b = $('#b-ate'); if (b) b.addEventListener('click', () => { if (!st.tocando) tocar(); });
+}
 
 function mostrarAlerta(a) {
   const d = st.dado, el = $('#alerta');
+  el.classList.remove('aguardando');
   const fb = st.feedback.find((f) => f.instancia === d.id && f.alerta_t === a.t);
   const opcoes = Object.entries(st.idx.eventos).filter(([k]) => k !== '0')
     .map(([, v]) => `<option value="${v}" ${a.sugestao[0].evento === v ? 'selected' : ''}>${v}</option>`).join('');
@@ -218,11 +233,22 @@ function mostrarAlerta(a) {
   if (!fb) {
     $('#b-conf').addEventListener('click', () => enviar(a, 'confirmado', $('#s-ev').value));
     $('#b-falso').addEventListener('click', () => enviar(a, 'falso', ''));
-  }
+  } else ligarMudar(a);
+}
+
+// "Mudar resposta" devolve os botões para o operador responder de novo (a resposta nova substitui a antiga).
+function ligarMudar(a) {
+  const b = $('#b-mudar'); if (!b) return;
+  b.addEventListener('click', () => {
+    st.feedback = st.feedback.filter((x) => !(x.instancia === st.dado.id && x.alerta_t === a.t));
+    if (st.local) gravarLocal(st.feedback);
+    mostrarAlerta(a);
+    placar(false);
+  });
 }
 
 function retorno(f) {
-  return `<span class="registrado">${ICONE.ok} ${f.veredito === 'confirmado' ? `Confirmado como ${f.evento.toLowerCase()}` : 'Marcado como alarme falso'}</span>${f.nota ? `<span class="descricao">“${f.nota}”</span>` : ''}<span class="descricao">Entra no próximo treino do detector</span>`;
+  return `<span class="registrado">${ICONE.ok} ${f.veredito === 'confirmado' ? `Confirmado como ${f.evento.toLowerCase()}` : 'Marcado como alarme falso'}</span>${f.nota ? `<span class="descricao">“${f.nota}”</span>` : ''}<span class="descricao">Entra no próximo treino do detector</span><button class="botao" id="b-mudar" type="button">Mudar resposta</button>`;
 }
 
 async function enviar(a, veredito, evento) {
@@ -233,6 +259,7 @@ async function enviar(a, veredito, evento) {
     st.feedback = st.feedback.filter((x) => !(x.instancia === f.instancia && x.alerta_t === f.alerta_t)).concat(f);
     if (st.local) gravarLocal(st.feedback);
     $('#decisao').innerHTML = retorno(f);
+    ligarMudar(a);
     placar(true);
   } catch {
     let aviso = $('#decisao .falhou');
@@ -243,7 +270,7 @@ async function enviar(a, veredito, evento) {
 }
 
 function placar(mudou) {
-  const n = st.feedback.length; if (!n) return;
+  const n = st.feedback.length; if (!n) { $('#placar').textContent = 'Nenhum alerta avaliado ainda'; return; }
   const c = st.feedback.filter((f) => f.veredito === 'confirmado').length;
   $('#placar').innerHTML = `<span class="num" id="placar-n">${n}</span> ${n === 1 ? 'alerta avaliado' : 'alertas avaliados'}: ${c} ${c === 1 ? 'confirmado' : 'confirmados'}, ${n - c} ${n - c === 1 ? 'alarme falso' : 'alarmes falsos'}`;
   if (mudou) anima($('#placar-n'), 'troca');
